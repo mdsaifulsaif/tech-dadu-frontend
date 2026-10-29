@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api";
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -46,9 +46,10 @@ export const authApi = {
       body: JSON.stringify(data),
     }),
 
-  verifyEmail: (token: string) =>
-    apiRequest(`/auth/verify-email/${token}`, {
-      method: "GET",
+  verifyEmail: (codeOrToken: string, email?: string) =>
+    apiRequest("/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({ code: codeOrToken, email }),
     }),
 
   resendVerification: (email: string) =>
@@ -96,6 +97,39 @@ export const authApi = {
     apiRequest("/auth/me", {
       method: "GET",
       headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }),
+};
+
+// Category API Methods
+export const categoryApi = {
+  getAll: (type?: "product" | "blog" | "template" | "all") => {
+    const query = type ? `?type=${type}` : "";
+    return apiRequest(`/categories${query}`);
+  },
+  getBySlug: (slug: string) => apiRequest(`/categories/${slug}`),
+};
+
+// Product API Methods
+export const productApi = {
+  getAll: (params: Record<string, any> = {}) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        searchParams.append(key, String(value));
+      }
+    });
+    const queryString = searchParams.toString();
+    return apiRequest(`/products${queryString ? `?${queryString}` : ""}`);
+  },
+
+  getBySlug: (slug: string) => apiRequest(`/products/${slug}`),
+
+  getById: (id: string) => apiRequest(`/products/id/${id}`),
+
+  trackClick: (id: string, platform?: string) =>
+    apiRequest(`/products/${id}/click`, {
+      method: "POST",
+      body: JSON.stringify({ platform }),
     }),
 };
 

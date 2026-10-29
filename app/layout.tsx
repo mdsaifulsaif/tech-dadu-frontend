@@ -1,16 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import SessionProvider from "@/components/providers/SessionProvider";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "Tech Dadu | Curated Desk Setup Gear & Modern Web Dev Templates",
@@ -24,12 +16,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
+    <html lang="en" className="h-full antialiased">
+      <body className="min-h-full flex flex-col bg-theme-bg text-theme-fg selection:bg-theme-primary selection:text-theme-primary-fg font-sans">
+        <SessionProvider>
+          <Navbar />
+          <div className="flex-1 flex flex-col">{children}</div>
+          <Footer />
+        </SessionProvider>
       </body>
     </html>
   );

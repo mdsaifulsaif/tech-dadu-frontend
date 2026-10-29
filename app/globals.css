@@ -1,35 +1,43 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   TECH DADU - BRAND DESIGN SYSTEM & COLOR TOKENS
-   Easily customize your brand colors from this central file!
+   TECH DADU - CENTRAL DESIGN SYSTEM & BRAND TOKENS
+   --------------------------------------------------------------------------
+   Change any color below in :root to update the whole application theme!
    ========================================================================== */
 
 :root {
-  /* --- Primary Brand Color (Electric Tech Indigo) --- */
+  /* --- Primary Brand Color (Tech Electric Indigo) --- */
   --primary: #4f46e5;
   --primary-hover: #4338ca;
   --primary-foreground: #ffffff;
   --primary-light: #eef2ff;
 
-  /* --- Secondary Brand Color (Cyan / Sky Tech Accent) --- */
+  /* --- Secondary Brand Color (Cyan / Sky Accent) --- */
   --secondary: #0ea5e9;
   --secondary-hover: #0284c7;
   --secondary-foreground: #ffffff;
+  --secondary-light: #f0f9ff;
 
-  /* --- Highlight & Rating Accent ("Saif's Top Pick", Star Reviews) --- */
+  /* --- Accent & Highlights (Warm Gold / Star Rating) --- */
   --accent: #f59e0b;
   --accent-hover: #d97706;
   --accent-foreground: #ffffff;
 
-  /* --- Base Background & Foreground (Light Mode) --- */
+  /* --- Base Page Background & Text --- */
   --background: #f8fafc;
   --foreground: #0f172a;
 
-  /* --- Card & Surface Panels --- */
+  /* --- Cards, Modals & Surfaces --- */
   --surface: #ffffff;
   --surface-hover: #f1f5f9;
   --surface-foreground: #1e293b;
+
+  /* --- Inputs & Form Controls --- */
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --input-focus: #4f46e5;
+  --input-placeholder: #94a3b8;
 
   /* --- Borders & Dividers --- */
   --border: #e2e8f0;
@@ -39,24 +47,59 @@
   --muted: #64748b;
   --muted-light: #f1f5f9;
 
-  /* --- Feedback & Status --- */
+  /* --- Status / Feedback Colors --- */
   --success: #10b981;
+  --success-light: #ecfdf5;
   --warning: #f59e0b;
+  --warning-light: #fffbeb;
   --danger: #ef4444;
+  --danger-light: #fef2f2;
 
-  /* --- Border Radius Scale --- */
+  /* --- Radii --- */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
 }
 
-/* --- Dark Mode Palette --- */
+/* --- Dark Theme Palette --- */
 .dark,
-[data-theme="dark"],
+[data-theme="dark"] {
+  --background: #090d16;
+  --foreground: #f8fafc;
+
+  --surface: #0f172a;
+  --surface-hover: #1e293b;
+  --surface-foreground: #f1f5f9;
+
+  --input-bg: #111827;
+  --input-border: #334155;
+  --input-focus: #6366f1;
+  --input-placeholder: #64748b;
+
+  --border: #1e293b;
+  --border-focus: #6366f1;
+
+  --muted: #94a3b8;
+  --muted-light: #161e2e;
+
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-foreground: #ffffff;
+  --primary-light: rgba(99, 102, 241, 0.15);
+
+  --secondary: #38bdf8;
+  --secondary-hover: #0ea5e9;
+  --secondary-light: rgba(56, 189, 248, 0.15);
+
+  --success-light: rgba(16, 185, 129, 0.15);
+  --warning-light: rgba(245, 158, 11, 0.15);
+  --danger-light: rgba(239, 68, 68, 0.15);
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --background: #090d16;
     --foreground: #f8fafc;
 
@@ -64,13 +107,17 @@
     --surface-hover: #1e293b;
     --surface-foreground: #f1f5f9;
 
+    --input-bg: #111827;
+    --input-border: #334155;
+    --input-focus: #6366f1;
+    --input-placeholder: #64748b;
+
     --border: #1e293b;
     --border-focus: #6366f1;
 
     --muted: #94a3b8;
     --muted-light: #161e2e;
 
-    /* Slightly brighter primary for dark mode contrast */
     --primary: #6366f1;
     --primary-hover: #4f46e5;
     --primary-foreground: #ffffff;
@@ -78,71 +125,32 @@
 
     --secondary: #38bdf8;
     --secondary-hover: #0ea5e9;
+    --secondary-light: rgba(56, 189, 248, 0.15);
+
+    --success-light: rgba(16, 185, 129, 0.15);
+    --warning-light: rgba(245, 158, 11, 0.15);
+    --danger-light: rgba(239, 68, 68, 0.15);
   }
 }
 
 /* ==========================================================================
-   Tailwind CSS v4 Inline Theme Token Mapping
-   ========================================================================== */
-@theme inline {
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary-light: var(--primary-light);
-
-  --color-secondary: var(--secondary);
-  --color-secondary-hover: var(--secondary-hover);
-  --color-secondary-foreground: var(--secondary-foreground);
-
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-foreground: var(--accent-foreground);
-
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-
-  --color-surface: var(--surface);
-  --color-surface-hover: var(--surface-hover);
-  --color-surface-foreground: var(--surface-foreground);
-
-  --color-border: var(--border);
-  --color-border-focus: var(--border-focus);
-
-  --color-muted: var(--muted);
-  --color-muted-light: var(--muted-light);
-
-  --color-success: var(--success);
-  --color-warning: var(--warning);
-  --color-danger: var(--danger);
-
-  --radius-sm: var(--radius-sm);
-  --radius-md: var(--radius-md);
-  --radius-lg: var(--radius-lg);
-  --radius-xl: var(--radius-xl);
-  --radius-2xl: var(--radius-2xl);
-
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-/* ==========================================================================
-   Global Base & Typography
+   Base Elements & Global Reset
    ========================================================================== */
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
+  min-height: 100vh;
 }
 
-/* Smooth Scrolling */
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom Sleek Scrollbar */
+/* Sleek Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
   background: var(--background);
@@ -156,31 +164,152 @@ html {
 }
 
 /* ==========================================================================
-   Custom Utility Classes
+   Universal Global CSS Design Tokens & Component Classes
+   Use these classes everywhere so changing :root variables updates all UI!
    ========================================================================== */
 
-/* Modern Gradient Text */
+/* Backgrounds */
+.bg-theme-bg { background-color: var(--background); }
+.bg-theme-surface { background-color: var(--surface); }
+.bg-theme-surface-hover:hover { background-color: var(--surface-hover); }
+.bg-theme-primary { background-color: var(--primary); }
+.bg-theme-primary-hover:hover { background-color: var(--primary-hover); }
+.bg-theme-primary-light { background-color: var(--primary-light); }
+.bg-theme-secondary { background-color: var(--secondary); }
+.bg-theme-accent { background-color: var(--accent); }
+.bg-theme-muted { background-color: var(--muted-light); }
+.bg-theme-danger { background-color: var(--danger-light); }
+.bg-theme-success { background-color: var(--success-light); }
+
+/* Text Colors */
+.text-theme-fg { color: var(--foreground); }
+.text-theme-surface { color: var(--surface-foreground); }
+.text-theme-primary { color: var(--primary); }
+.text-theme-primary-fg { color: var(--primary-foreground); }
+.text-theme-secondary { color: var(--secondary); }
+.text-theme-accent { color: var(--accent); }
+.text-theme-muted { color: var(--muted); }
+.text-theme-danger { color: var(--danger); }
+.text-theme-success { color: var(--success); }
+
+/* Borders */
+.border-theme-border { border-color: var(--border); }
+.border-theme-focus:focus { border-color: var(--border-focus); }
+.border-theme-primary { border-color: var(--primary); }
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);
+  transform: translateY(-1px);
+}
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+.btn-secondary:hover {
+  background-color: var(--secondary-hover);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  color: var(--foreground);
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.625rem 1.25rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn-outline:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--muted);
+}
+
+/* Card Container */
+.card-surface {
+  background-color: var(--surface);
+  color: var(--surface-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.card-surface-hover:hover {
+  border-color: var(--primary);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Input Fields */
+.input-theme {
+  width: 100%;
+  background-color: var(--input-bg);
+  color: var(--foreground);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.input-theme::placeholder {
+  color: var(--input-placeholder);
+}
+.input-theme:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+/* Input padding helpers for icons to prevent text overlapping */
+.input-icon-left {
+  padding-left: 2.75rem !important;
+}
+.input-icon-right {
+  padding-right: 2.75rem !important;
+}
+
+/* Gradient Text */
 .text-gradient {
   background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-/* Glassmorphism Card for Product/Blog Cards */
-.glass-card {
-  background-color: color-mix(in srgb, var(--surface) 85%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-}
-
-/* Glowing Accent Button */
-.btn-primary {
-  background-color: var(--primary);
-  color: var(--primary-foreground);
-  transition: all 0.2s ease-in-out;
-}
-.btn-primary:hover {
-  background-color: var(--primary-hover);
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
 }

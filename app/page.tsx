@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
-import { productApi, templateApi, blogApi } from "@/lib/api";
-import { IProduct, IDigitalProduct, IBlog } from "@/types";
+import { productApi, templateApi, blogApi, categoryApi } from "@/lib/api";
+import { IProduct, IDigitalProduct, IBlog, ICategory } from "@/types";
 import {
   HeroSection,
   ValueGridSection,
@@ -14,47 +14,60 @@ export default async function Home() {
   const session = await auth();
 
   // Fetch live showcase items with graceful fallbacks
-  let products: IProduct[] = [];
-  let templates: IDigitalProduct[] = [];
-  let uiDesigns: IDigitalProduct[] = [];
+  let categories: ICategory[] = [];
+  let allProducts: IProduct[] = [];
+  let allTemplates: IDigitalProduct[] = [];
   let blogs: IBlog[] = [];
 
   try {
-    const [pRes, tRes, uRes, bRes] = await Promise.allSettled([
-      productApi.getAll({ limit: 4 }),
-      templateApi.getAll({ limit: 6 }),
-      templateApi.getAll({ category: "ui-ux-design", limit: 3 }),
-      blogApi.getAll({ limit: 3 }),
+    const [catRes, pRes, tRes, bRes] = await Promise.allSettled([
+      categoryApi.getAll(),
+      productApi.getAll({ limit: 50 }),
+      templateApi.getAll({ limit: 50 }),
+      blogApi.getAll({ limit: 6 }),
     ]);
 
-    if (pRes.status === "fulfilled" && pRes.value.success && pRes.value.data) {
-      products = pRes.value.data.products || pRes.value.data || [];
+    if (catRes.status === "fulfilled" && catRes.value?.success && catRes.value?.data) {
+      categories = catRes.value.data || [];
     }
-    if (tRes.status === "fulfilled" && tRes.value.success && tRes.value.data) {
-      const allTemplates = tRes.value.data.templates || tRes.value.data || [];
-      // Separate code templates from UI/UX design kits
-      templates = allTemplates
-        .filter((t: IDigitalProduct) => {
-          const catSlug = typeof t.category === "object" ? t.category?.slug : "";
-          return catSlug !== "ui-ux-design";
-        })
-        .slice(0, 3);
+    if (pRes.status === "fulfilled" && pRes.value?.success && pRes.value?.data) {
+      allProducts = pRes.value.data.products || pRes.value.data || [];
     }
-    if (uRes.status === "fulfilled" && uRes.value.success && uRes.value.data) {
-      uiDesigns = uRes.value.data.templates || uRes.value.data || [];
+    if (tRes.status === "fulfilled" && tRes.value?.success && tRes.value?.data) {
+      allTemplates = tRes.value.data.templates || tRes.value.data || [];
     }
-    if (bRes.status === "fulfilled" && bRes.value.success && bRes.value.data) {
+    if (bRes.status === "fulfilled" && bRes.value?.success && bRes.value?.data) {
       blogs = bRes.value.data.blogs || bRes.value.data || [];
     }
   } catch { }
 
+  // Filter items for downstream featured sections
+  const showcaseProducts = allProducts.slice(0, 4);
+  const showcaseTemplates = allTemplates
+    .filter((t: IDigitalProduct) => {
+      const catSlug = typeof t.category === "object" ? t.category?.slug : "";
+      return catSlug !== "ui-ux-design";
+    })
+    .slice(0, 3);
+  const showcaseUIDesigns = allTemplates
+    .filter((t: IDigitalProduct) => {
+      const catSlug = typeof t.category === "object" ? t.category?.slug : "";
+      return catSlug === "ui-ux-design";
+    })
+    .slice(0, 3);
+
   return (
     <div className="flex flex-col flex-1">
-      <HeroSection session={session} />
+      <HeroSection
+        session={session}
+        categories={categories}
+        products={allProducts}
+        templates={allTemplates}
+      />
       <ValueGridSection />
-      <FeaturedProductsSection products={products} />
-      <FeaturedUIDesignsSection uiDesigns={uiDesigns} />
-      <FeaturedTemplatesSection templates={templates} />
+      <FeaturedProductsSection products={showcaseProducts} />
+      <FeaturedUIDesignsSection uiDesigns={showcaseUIDesigns} />
+      <FeaturedTemplatesSection templates={showcaseTemplates} />
       <LatestBlogsSection blogs={blogs} />
     </div>
   );

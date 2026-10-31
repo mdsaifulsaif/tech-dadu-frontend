@@ -1,5 +1,12 @@
 export * from "./product";
 
+export interface IDigitalProductComparison {
+  isFeatured?: boolean;
+  badge?: string;
+  bestFor?: string;
+  keyHighlight?: string;
+}
+
 export interface IDigitalProduct {
   _id: string;
   title: string;
@@ -15,6 +22,7 @@ export interface IDigitalProduct {
   purchaseUrl: string;
   previewImages: string[];
   downloadCount: number;
+  comparison?: IDigitalProductComparison;
   status: "draft" | "published";
   createdAt: string;
   updatedAt: string;

@@ -21,6 +21,13 @@ export interface IProductPrice {
   formatted: string;
 }
 
+export interface IProductComparison {
+  isFeatured?: boolean;
+  badge?: string;
+  bestFor?: string;
+  keyHighlight?: string;
+}
+
 export interface IProductSEO {
   metaTitle?: string;
   metaDescription?: string;
@@ -43,6 +50,7 @@ export interface IProduct {
   cons: string[];
   badges: string[];
   isFeatured: boolean;
+  comparison?: IProductComparison;
   status: "draft" | "published";
   clickCount: number;
   seo?: IProductSEO;

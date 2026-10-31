@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Clock, BookOpen, ArrowRight, Tag, Eye } from "lucide-react";
 import { IBlog } from "@/types";
 import { Badge } from "@/components/common/Badge";
@@ -33,11 +34,12 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
       <div className="flex-1 flex flex-col">
         {/* Cover Image */}
         <Link href={`/blogs/${blog.slug}`} className="block relative aspect-16/9 overflow-hidden bg-theme-bg">
-          <img
+          <Image
             src={cover}
             alt={blog.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
 
           {/* Category Pill */}

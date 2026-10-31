@@ -17,7 +17,6 @@ import { IProduct, IDigitalProduct, IBlog } from "@/types";
 import { ProductCard } from "@/components/features/products/ProductCard";
 import { TemplateCard } from "@/components/features/templates/TemplateCard";
 import { BlogCard } from "@/components/features/blogs/BlogCard";
-import { NewsletterBox } from "@/components/features/newsletter/NewsletterBox";
 
 export default async function Home() {
   const session = await auth();
@@ -353,15 +352,6 @@ export default async function Home() {
           </div>
         </section>
       )}
-
-      {/* Global Newsletter Box */}
-      <section className="py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full border-t border-theme-border/60">
-        <NewsletterBox
-          source="homepage_bottom"
-          title="Join The Tech Dadu Community"
-          subtitle="Get weekly curated desk setups, exclusive developer discounts, and free boilerplate releases delivered straight to your inbox."
-        />
-      </section>
     </div>
   );
 }

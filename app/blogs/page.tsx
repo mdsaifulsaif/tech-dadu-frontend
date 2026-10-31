@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, useMemo, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Search,
   BookOpen,
@@ -18,23 +19,44 @@ import { blogApi, categoryApi } from "@/lib/api";
 import { IBlog, ICategory } from "@/types";
 import { BlogCard } from "@/components/features/blogs/BlogCard";
 import { CardSkeleton } from "@/components/common/Skeleton";
-import { NewsletterBox } from "@/components/features/newsletter/NewsletterBox";
 import { Badge } from "@/components/common/Badge";
 
 function BlogsContent() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const currentCategory = searchParams.get("category") || "all";
   const currentSearch = searchParams.get("search") || "";
   const currentTag = searchParams.get("tag") || "";
 
-  const [blogs, setBlogs] = useState<IBlog[]>([]);
+  const [rawBlogs, setRawBlogs] = useState<IBlog[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [searchInput, setSearchInput] = useState(currentSearch);
+
+  // Sync with URL when external navigation occurs
+  useEffect(() => {
+    setSearchInput(currentSearch);
+  }, [currentSearch]);
+
+  // Debounced live search URL sync
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchInput !== currentSearch) {
+        const params = new URLSearchParams(searchParams.toString());
+        if (searchInput.trim()) {
+          params.set("search", searchInput.trim());
+        } else {
+          params.delete("search");
+        }
+        router.replace(`${pathname}?${params.toString()}`);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput, currentSearch, pathname, router, searchParams]);
 
   // Fetch Categories
   useEffect(() => {
@@ -54,7 +76,7 @@ function BlogsContent() {
     setError(null);
 
     const query: Record<string, any> = {
-      limit: 24,
+      limit: 30,
     };
 
     if (currentCategory && currentCategory !== "all") {
@@ -74,19 +96,34 @@ function BlogsContent() {
               b.tags?.some((t) => t.toLowerCase() === currentTag.toLowerCase())
             );
           }
-          setBlogs(list);
+          setRawBlogs(list);
         } else {
-          setBlogs([]);
+          setRawBlogs([]);
         }
       })
       .catch((err) => {
         setError(err.message || "Failed to load guides.");
-        setBlogs([]);
+        setRawBlogs([]);
       })
       .finally(() => {
         setLoading(false);
       });
   }, [currentCategory, currentSearch, currentTag]);
+
+  // Instant client-side filtering while typing / debounced query runs
+  const displayedBlogs = useMemo(() => {
+    const term = searchInput.trim().toLowerCase();
+    if (!term) return rawBlogs;
+
+    return rawBlogs.filter((b) => {
+      const titleMatch = b.title?.toLowerCase().includes(term);
+      const excerptMatch = b.excerpt?.toLowerCase().includes(term);
+      const tagMatch = b.tags?.some((t) => t.toLowerCase().includes(term));
+      const authorName = typeof b.author === "string" ? b.author : b.author?.name || "";
+      const authorMatch = authorName.toLowerCase().includes(term);
+      return titleMatch || excerptMatch || tagMatch || authorMatch;
+    });
+  }, [rawBlogs, searchInput]);
 
   const updateFilters = (newParams: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -97,24 +134,36 @@ function BlogsContent() {
         params.set(k, v);
       }
     });
-    router.push(`/blogs?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateFilters({ search: searchInput });
+    updateFilters({ search: searchInput.trim() });
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const clearAllFilters = () => {
     setSearchInput("");
-    router.push("/blogs");
+    router.replace("/blogs");
   };
 
+  const isSearching = Boolean(searchInput.trim()) || Boolean(currentSearch);
   const hasActiveFilters =
-    Boolean(currentSearch) || currentCategory !== "all" || Boolean(currentTag);
+    isSearching || currentCategory !== "all" || Boolean(currentTag);
 
-  const featuredBlog = blogs.length > 0 && !hasActiveFilters ? blogs[0] : null;
-  const regularBlogs = featuredBlog ? blogs.slice(1) : blogs;
+  // When searching, hide the big featured hero so matching results show directly below search input
+  const featuredBlog =
+    displayedBlogs.length > 0 && !hasActiveFilters && !isSearching
+      ? displayedBlogs[0]
+      : null;
+  const regularBlogs = featuredBlog ? displayedBlogs.slice(1) : displayedBlogs;
 
   return (
     <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
@@ -147,11 +196,8 @@ function BlogsContent() {
           {searchInput && (
             <button
               type="button"
-              onClick={() => {
-                setSearchInput("");
-                updateFilters({ search: "" });
-              }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-theme-muted hover:text-theme-fg"
+              onClick={clearSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-theme-muted hover:text-theme-fg cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -162,7 +208,7 @@ function BlogsContent() {
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs">
           <button
             onClick={() => updateFilters({ category: "all" })}
-            className={`px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition-colors ${
+            className={`px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition-colors cursor-pointer ${
               currentCategory === "all"
                 ? "bg-theme-primary text-theme-primary-fg"
                 : "bg-theme-bg border border-theme-border text-theme-muted hover:text-theme-fg"
@@ -174,7 +220,7 @@ function BlogsContent() {
             <button
               key={cat._id}
               onClick={() => updateFilters({ category: cat.slug })}
-              className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors cursor-pointer ${
                 currentCategory === cat.slug
                   ? "bg-theme-primary text-theme-primary-fg font-semibold"
                   : "bg-theme-bg border border-theme-border text-theme-muted hover:text-theme-fg"
@@ -186,7 +232,7 @@ function BlogsContent() {
         </div>
       </div>
 
-      {/* Featured Blog Hero (Only on main view) */}
+      {/* Featured Blog Hero (Only on unfiltered main view) */}
       {featuredBlog && !loading && (
         <div className="card-surface rounded-2xl border border-theme-border overflow-hidden mb-12 group hover:border-theme-primary/40 transition-colors">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
@@ -194,10 +240,13 @@ function BlogsContent() {
               href={`/blogs/${featuredBlog.slug}`}
               className="lg:col-span-7 relative aspect-16/10 overflow-hidden bg-theme-bg block"
             >
-              <img
+              <Image
                 src={featuredBlog.coverImage || "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200"}
                 alt={featuredBlog.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 60vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute top-4 left-4 z-10">
                 <Badge variant="accent" size="sm" icon={<Sparkles className="w-3 h-3" />}>
@@ -264,11 +313,19 @@ function BlogsContent() {
       {/* Results Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="text-xs sm:text-sm text-theme-muted">
-          Showing <strong className="text-theme-fg">{blogs.length}</strong> guides
+          {isSearching ? (
+            <>
+              Showing <strong className="text-theme-fg">{displayedBlogs.length}</strong> {displayedBlogs.length === 1 ? "result" : "results"} for <span className="text-theme-primary font-semibold">&quot;{searchInput || currentSearch}&quot;</span>
+            </>
+          ) : (
+            <>
+              Showing <strong className="text-theme-fg">{displayedBlogs.length}</strong> guides
+            </>
+          )}
           {hasActiveFilters && (
             <button
               onClick={clearAllFilters}
-              className="ml-3 text-xs text-theme-primary hover:underline font-semibold"
+              className="ml-3 text-xs text-theme-primary hover:underline font-semibold cursor-pointer"
             >
               Clear filters
             </button>
@@ -288,24 +345,34 @@ function BlogsContent() {
           <AlertCircle className="w-8 h-8 text-theme-danger mx-auto mb-2" />
           <h3 className="text-base font-bold text-theme-fg">Unable to load guides</h3>
           <p className="text-xs text-theme-muted mt-1">{error}</p>
-          <button onClick={() => window.location.reload()} className="btn-outline text-xs mt-4 py-2 px-4">
+          <button onClick={() => window.location.reload()} className="btn-outline text-xs mt-4 py-2 px-4 cursor-pointer">
             Try Again
           </button>
         </div>
-      ) : blogs.length === 0 ? (
+      ) : displayedBlogs.length === 0 ? (
         <div className="card-surface p-12 rounded-2xl text-center border border-theme-border">
           <div className="w-12 h-12 rounded-full bg-theme-primary-light text-theme-primary flex items-center justify-center mx-auto mb-3">
-            <BookOpen className="w-6 h-6" />
+            {isSearching ? <Search className="w-6 h-6" /> : <BookOpen className="w-6 h-6" />}
           </div>
-          <h3 className="text-base font-bold text-theme-fg">No guides found</h3>
+          <h3 className="text-base font-bold text-theme-fg">
+            {isSearching
+              ? `No guides found matching "${searchInput || currentSearch}"`
+              : "No guides found"}
+          </h3>
           <p className="text-xs text-theme-muted mt-1 max-w-sm mx-auto">
-            Try searching with different terms or check back soon for newly published tech guides.
+            {isSearching
+              ? "We couldn't find any guides matching your search terms. Try different keywords or clear the search."
+              : "Try searching with different terms or check back soon for newly published tech guides."}
           </p>
-          {hasActiveFilters && (
-            <button onClick={clearAllFilters} className="btn-primary text-xs mt-4 py-2 px-4">
+          {isSearching ? (
+            <button onClick={clearSearch} className="btn-primary text-xs mt-4 py-2 px-4 cursor-pointer">
+              Clear Search
+            </button>
+          ) : hasActiveFilters ? (
+            <button onClick={clearAllFilters} className="btn-primary text-xs mt-4 py-2 px-4 cursor-pointer">
               Clear All Filters
             </button>
-          )}
+          ) : null}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -314,15 +381,6 @@ function BlogsContent() {
           ))}
         </div>
       )}
-
-      {/* Newsletter Bottom Banner */}
-      <div className="mt-16">
-        <NewsletterBox
-          source="blogs_page"
-          title="Stay Ahead With Tech Dadu"
-          subtitle="Get our latest desk gear roundups, mechanical keyboard teardowns, and Next.js guides delivered straight to your inbox."
-        />
-      </div>
     </div>
   );
 }

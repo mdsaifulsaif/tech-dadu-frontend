@@ -44,11 +44,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div>
         {/* Card Image Container */}
         <Link href={`/products/${product.slug}`} className="block relative aspect-4/3 overflow-hidden bg-theme-bg">
-          <img
+          <Image
             src={mainImage}
             alt={product.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
 
           {/* Badges Overlay */}

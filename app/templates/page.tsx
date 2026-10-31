@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
   Search,
   Layers,
@@ -17,10 +17,10 @@ import { templateApi, categoryApi } from "@/lib/api";
 import { IDigitalProduct, ICategory } from "@/types";
 import { TemplateCard } from "@/components/features/templates/TemplateCard";
 import { CardSkeleton } from "@/components/common/Skeleton";
-import { NewsletterBox } from "@/components/features/newsletter/NewsletterBox";
 
 function TemplatesContent() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const currentCategory = searchParams.get("category") || "all";
@@ -34,6 +34,27 @@ function TemplatesContent() {
   const [error, setError] = useState<string | null>(null);
 
   const [searchInput, setSearchInput] = useState(currentSearch);
+
+  // Sync search input if currentSearch from URL changes
+  useEffect(() => {
+    setSearchInput(currentSearch);
+  }, [currentSearch]);
+
+  // Debounced URL sync
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchInput !== currentSearch) {
+        const params = new URLSearchParams(searchParams.toString());
+        if (searchInput.trim()) {
+          params.set("search", searchInput.trim());
+        } else {
+          params.delete("search");
+        }
+        router.replace(`${pathname}?${params.toString()}`);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput, currentSearch, pathname, router, searchParams]);
 
   // Fetch Categories
   useEffect(() => {
@@ -101,9 +122,27 @@ function TemplatesContent() {
     return ["All", ...sorted];
   }, [rawTemplates]);
 
-  // Client-side filtering for pricing & tech stacks
+  // Real-time instant filtering for search, pricing & tech stacks
   const filteredTemplates = useMemo(() => {
     let list = rawTemplates;
+
+    // Instant search filter on title, description, shortSummary, techStack, features
+    const term = (searchInput || currentSearch).trim().toLowerCase();
+    if (term) {
+      list = list.filter((t) => {
+        const titleMatch = t.title?.toLowerCase().includes(term);
+        const descMatch =
+          t.description?.toLowerCase().includes(term) ||
+          t.shortSummary?.toLowerCase().includes(term);
+        const stackMatch = t.techStack?.some((s) =>
+          s.toLowerCase().includes(term)
+        );
+        const featuresMatch = t.features?.some((f) =>
+          f.toLowerCase().includes(term)
+        );
+        return titleMatch || descMatch || stackMatch || featuresMatch;
+      });
+    }
 
     // Pricing filter
     if (currentPricing === "free") {
@@ -122,7 +161,7 @@ function TemplatesContent() {
     }
 
     return list;
-  }, [rawTemplates, currentPricing, currentStack]);
+  }, [rawTemplates, searchInput, currentSearch, currentPricing, currentStack]);
 
   const updateFilters = (newParams: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -139,21 +178,29 @@ function TemplatesContent() {
       params.delete("stack");
     }
 
-    router.push(`/templates?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    updateFilters({ search: searchInput });
+    updateFilters({ search: searchInput.trim() });
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const clearAllFilters = () => {
     setSearchInput("");
-    router.push("/templates");
+    router.replace("/templates");
   };
 
+  const isSearching = Boolean(searchInput.trim()) || Boolean(currentSearch);
   const hasActiveFilters =
-    Boolean(currentSearch) ||
+    isSearching ||
     currentCategory !== "all" ||
     currentPricing !== "all" ||
     currentStack !== "All";
@@ -251,10 +298,7 @@ function TemplatesContent() {
             {searchInput && (
               <button
                 type="button"
-                onClick={() => {
-                  setSearchInput("");
-                  updateFilters({ search: "" });
-                }}
+                onClick={clearSearch}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-theme-muted hover:text-theme-fg cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -324,7 +368,15 @@ function TemplatesContent() {
       {/* Results Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="text-xs sm:text-sm text-theme-muted">
-          Showing <strong className="text-theme-fg">{filteredTemplates.length}</strong> items
+          {isSearching ? (
+            <>
+              Showing <strong className="text-theme-fg">{filteredTemplates.length}</strong> {filteredTemplates.length === 1 ? "item" : "items"} for <span className="text-theme-primary font-semibold">&quot;{searchInput || currentSearch}&quot;</span>
+            </>
+          ) : (
+            <>
+              Showing <strong className="text-theme-fg">{filteredTemplates.length}</strong> items
+            </>
+          )}
           {hasActiveFilters && (
             <button
               onClick={clearAllFilters}
@@ -348,30 +400,40 @@ function TemplatesContent() {
           <AlertCircle className="w-8 h-8 text-theme-danger mx-auto mb-2" />
           <h3 className="text-base font-bold text-theme-fg">Unable to load items</h3>
           <p className="text-xs text-theme-muted mt-1">{error}</p>
-          <button onClick={() => window.location.reload()} className="btn-outline text-xs mt-4 py-2 px-4">
+          <button onClick={() => window.location.reload()} className="btn-outline text-xs mt-4 py-2 px-4 cursor-pointer">
             Try Again
           </button>
         </div>
       ) : filteredTemplates.length === 0 ? (
         <div className="card-surface p-12 rounded-2xl text-center border border-theme-border">
           <div className="w-12 h-12 rounded-full bg-theme-primary-light text-theme-primary flex items-center justify-center mx-auto mb-3">
-            {isUiUxCategory ? <Palette className="w-6 h-6" /> : <Layers className="w-6 h-6" />}
+            {isSearching ? <Search className="w-6 h-6" /> : isUiUxCategory ? <Palette className="w-6 h-6" /> : <Layers className="w-6 h-6" />}
           </div>
           <h3 className="text-base font-bold text-theme-fg">
-            {isUiUxCategory ? "No UI/UX design kits found" : "No templates found"}
+            {isSearching
+              ? `No items found matching "${searchInput || currentSearch}"`
+              : isUiUxCategory
+              ? "No UI/UX design kits found"
+              : "No templates found"}
           </h3>
           <p className="text-xs text-theme-muted mt-1 max-w-sm mx-auto">
-            {hasActiveFilters
+            {isSearching
+              ? "We couldn't find any templates or design kits matching your search query. Try different keywords or clear your search."
+              : hasActiveFilters
               ? "Try adjusting your search keywords, clearing filters, or check back soon."
               : isUiUxCategory
               ? "Add your first Figma UI kit from the admin dashboard to showcase it here."
               : "Showcase your first developer boilerplate or freebie kit from the dashboard."}
           </p>
-          {hasActiveFilters && (
+          {isSearching ? (
+            <button onClick={clearSearch} className="btn-primary text-xs mt-4 py-2 px-4 cursor-pointer">
+              Clear Search
+            </button>
+          ) : hasActiveFilters ? (
             <button onClick={clearAllFilters} className="btn-primary text-xs mt-4 py-2 px-4 cursor-pointer">
               Clear All Filters
             </button>
-          )}
+          ) : null}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -380,15 +442,6 @@ function TemplatesContent() {
           ))}
         </div>
       )}
-
-      {/* Newsletter Bottom Banner */}
-      <div className="mt-16">
-        <NewsletterBox
-          source="templates_page"
-          title="Get Weekly Free Boilerplates & UI Kits"
-          subtitle="We drop open-source Next.js starters, Figma components, and Tailwind templates directly to your inbox every Thursday."
-        />
-      </div>
     </div>
   );
 }

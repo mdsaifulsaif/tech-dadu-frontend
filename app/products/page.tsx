@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useTransition, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, useMemo, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
   Search,
   Filter,
@@ -18,6 +18,7 @@ import { CardSkeleton } from "@/components/common/Skeleton";
 
 function ProductsContent() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const currentCategory = searchParams.get("category") || "all";
@@ -31,6 +32,27 @@ function ProductsContent() {
 
   const [searchInput, setSearchInput] = useState(currentSearch);
   const [selectedSort, setSelectedSort] = useState(currentSort);
+
+  // Sync search input if currentSearch from URL changes
+  useEffect(() => {
+    setSearchInput(currentSearch);
+  }, [currentSearch]);
+
+  // Debounced URL sync
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchInput !== currentSearch) {
+        const params = new URLSearchParams(searchParams.toString());
+        if (searchInput.trim()) {
+          params.set("search", searchInput.trim());
+        } else {
+          params.delete("search");
+        }
+        router.replace(`${pathname}?${params.toString()}`);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput, currentSearch, pathname, router, searchParams]);
 
   // Fetch Categories
   useEffect(() => {
@@ -53,7 +75,7 @@ function ProductsContent() {
 
     const query: Record<string, any> = {
       sort: selectedSort,
-      limit: 24,
+      limit: 30,
     };
 
     if (currentCategory && currentCategory !== "all") {
@@ -82,6 +104,22 @@ function ProductsContent() {
       });
   }, [currentCategory, currentSearch, selectedSort]);
 
+  // Instant client-side filtering while typing / debounced query runs
+  const filteredProducts = useMemo(() => {
+    const term = (searchInput || currentSearch).trim().toLowerCase();
+    if (!term) return products;
+
+    return products.filter((p) => {
+      const titleMatch = p.title?.toLowerCase().includes(term);
+      const descMatch =
+        p.description?.toLowerCase().includes(term) ||
+        p.shortSummary?.toLowerCase().includes(term);
+      const badgeMatch = p.badges?.some((b) => b.toLowerCase().includes(term));
+      const prosMatch = p.pros?.some((pro) => pro.toLowerCase().includes(term));
+      return titleMatch || descMatch || badgeMatch || prosMatch;
+    });
+  }, [products, searchInput, currentSearch]);
+
   const handleCategorySelect = (slug: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (slug === "all") {
@@ -89,7 +127,7 @@ function ProductsContent() {
     } else {
       params.set("category", slug);
     }
-    router.push(`/products?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -100,13 +138,23 @@ function ProductsContent() {
     } else {
       params.delete("search");
     }
-    router.push(`/products?${params.toString()}`);
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("search");
+    router.replace(`${pathname}?${params.toString()}`);
   };
 
   const clearFilters = () => {
     setSearchInput("");
-    router.push("/products");
+    router.replace("/products");
   };
+
+  const isSearching = Boolean(searchInput.trim()) || Boolean(currentSearch);
+  const hasActiveFilters = isSearching || currentCategory !== "all";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
@@ -126,7 +174,7 @@ function ProductsContent() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-8 pb-6 border-b border-theme-border">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-6 pb-6 border-b border-theme-border">
         {/* Search Input */}
         <form onSubmit={handleSearchSubmit} className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-theme-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -140,13 +188,8 @@ function ProductsContent() {
           {searchInput && (
             <button
               type="button"
-              onClick={() => {
-                setSearchInput("");
-                const params = new URLSearchParams(searchParams.toString());
-                params.delete("search");
-                router.push(`/products?${params.toString()}`);
-              }}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-theme-muted hover:text-theme-fg"
+              onClick={clearSearch}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-theme-muted hover:text-theme-fg cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -168,7 +211,7 @@ function ProductsContent() {
               setSelectedSort(val);
               const params = new URLSearchParams(searchParams.toString());
               params.set("sort", val);
-              router.push(`/products?${params.toString()}`);
+              router.replace(`${pathname}?${params.toString()}`);
             }}
             className="input-theme py-2 px-3 text-xs font-medium cursor-pointer"
           >
@@ -182,10 +225,10 @@ function ProductsContent() {
       </div>
 
       {/* Category Pills Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 scrollbar-none">
+      <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 scrollbar-none">
         <button
           onClick={() => handleCategorySelect("all")}
-          className={`text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap transition-all ${
+          className={`text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap transition-all cursor-pointer ${
             currentCategory === "all"
               ? "bg-theme-primary text-theme-primary-fg shadow-sm"
               : "card-surface hover:border-theme-primary text-theme-muted"
@@ -198,7 +241,7 @@ function ProductsContent() {
           <button
             key={cat._id}
             onClick={() => handleCategorySelect(cat.slug)}
-            className={`text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap transition-all ${
+            className={`text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap transition-all cursor-pointer ${
               currentCategory === cat.slug
                 ? "bg-theme-primary text-theme-primary-fg shadow-sm"
                 : "card-surface hover:border-theme-primary text-theme-muted"
@@ -207,6 +250,29 @@ function ProductsContent() {
             {cat.name}
           </button>
         ))}
+      </div>
+
+      {/* Results Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="text-xs sm:text-sm text-theme-muted">
+          {isSearching ? (
+            <>
+              Showing <strong className="text-theme-fg">{filteredProducts.length}</strong> {filteredProducts.length === 1 ? "gear" : "gears"} for <span className="text-theme-primary font-semibold">&quot;{searchInput || currentSearch}&quot;</span>
+            </>
+          ) : (
+            <>
+              Showing <strong className="text-theme-fg">{filteredProducts.length}</strong> items
+            </>
+          )}
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="ml-3 text-xs text-theme-primary hover:underline font-semibold cursor-pointer"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Error Banner */}
@@ -224,26 +290,36 @@ function ProductsContent() {
             <CardSkeleton key={i} />
           ))}
         </div>
-      ) : products.length > 0 ? (
+      ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}
         </div>
       ) : (
-        <div className="card-surface p-12 text-center max-w-lg mx-auto rounded-2xl">
+        <div className="card-surface p-12 text-center max-w-lg mx-auto rounded-2xl border border-theme-border">
           <div className="w-14 h-14 rounded-2xl bg-theme-primary-light text-theme-primary flex items-center justify-center mx-auto mb-4">
-            <Laptop className="w-7 h-7" />
+            {isSearching ? <Search className="w-7 h-7" /> : <Laptop className="w-7 h-7" />}
           </div>
-          <h3 className="text-lg font-bold text-theme-fg mb-1">No Products Found</h3>
+          <h3 className="text-lg font-bold text-theme-fg mb-1">
+            {isSearching
+              ? `No gear found matching "${searchInput || currentSearch}"`
+              : "No Products Found"}
+          </h3>
           <p className="text-sm text-theme-muted mb-6 leading-relaxed">
-            {currentSearch
-              ? `No gear matched your search "${currentSearch}". Try different keywords.`
+            {isSearching
+              ? `No desk setup gear matched your search "${searchInput || currentSearch}". Try different keywords or reset search.`
               : "No products available in this category right now."}
           </p>
-          <button onClick={clearFilters} className="btn-primary text-xs py-2 px-4">
-            Reset Filters
-          </button>
+          {isSearching ? (
+            <button onClick={clearSearch} className="btn-primary text-xs py-2 px-4 cursor-pointer">
+              Clear Search
+            </button>
+          ) : (
+            <button onClick={clearFilters} className="btn-primary text-xs py-2 px-4 cursor-pointer">
+              Reset Filters
+            </button>
+          )}
         </div>
       )}
     </div>

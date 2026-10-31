@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Sparkles, ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/common/Badge";
 
@@ -34,10 +35,13 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     <div className="space-y-3.5">
       {/* Main Image Container */}
       <div className="card-surface overflow-hidden aspect-4/3 rounded-2xl relative bg-theme-bg border border-theme-border shadow-sm group">
-        <img
+        <Image
           src={imageList[activeIndex] || imageList[0]}
           alt={`${title} - Preview ${activeIndex + 1}`}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          fill
+          priority
+          sizes="(max-width: 1024px) 100vw, 50vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
 
         {/* Featured Badge */}
@@ -103,10 +107,12 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 }`}
                 title={`View image ${i + 1}`}
               >
-                <img
+                <Image
                   src={img}
                   alt={`Thumbnail ${i + 1}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="96px"
+                  className="object-cover"
                 />
                 {i === 0 && (
                   <span className="absolute bottom-1 left-1 bg-black/80 text-white text-[9px] font-bold px-1 rounded">

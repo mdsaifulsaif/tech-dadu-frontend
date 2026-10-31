@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { Sparkles, LogIn, UserPlus, LogOut, Shield, Laptop, BookOpen, Layers, Palette } from "lucide-react";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
@@ -13,18 +14,15 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-theme-surface border-b border-theme-border backdrop-blur-md transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-9 h-9 rounded-lg bg-theme-primary flex items-center justify-center text-theme-primary-fg shadow-sm transition-transform group-hover:scale-105">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold text-lg leading-tight tracking-tight text-theme-fg">
-              Tech<span className="text-theme-primary">Dadu</span>
-            </span>
-            <span className="text-[10px] uppercase font-semibold tracking-wider text-theme-muted">
-              Desk Gear & Boilerplates
-            </span>
-          </div>
+        <Link href="/" className="flex items-center gap-2 group shrink-0">
+          <Image
+            src="/images/logo.png"
+            alt="Tech Dadu Logo"
+            width={160}
+            height={40}
+            priority
+            className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-102 dark:drop-shadow-[0_0_1px_rgba(255,255,255,0.85)]"
+          />
         </Link>
 
         {/* Center Navigation */}
@@ -70,9 +68,11 @@ export default function Navbar() {
               {/* User badge */}
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-theme-bg border border-theme-border text-sm">
                 {session.user.image ? (
-                  <img
+                  <Image
                     src={session.user.image}
                     alt={session.user.name || "User"}
+                    width={24}
+                    height={24}
                     className="w-6 h-6 rounded-full object-cover"
                   />
                 ) : (

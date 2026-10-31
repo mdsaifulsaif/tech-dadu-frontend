@@ -2,6 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   Clock,
@@ -330,11 +331,14 @@ export default function BlogDetailPage({ params }: PageProps) {
 
           {/* Cover Image */}
           {blog.coverImage && (
-            <div className="rounded-2xl overflow-hidden border border-theme-border mb-10 shadow-sm aspect-16/9 bg-theme-bg">
-              <img
+            <div className="rounded-2xl overflow-hidden border border-theme-border mb-10 shadow-sm aspect-16/9 bg-theme-bg relative">
+              <Image
                 src={blog.coverImage}
                 alt={blog.title}
-                className="w-full h-full object-cover"
+                fill
+                priority
+                sizes="(max-width: 1200px) 100vw, 800px"
+                className="object-cover"
               />
             </div>
           )}
@@ -369,11 +373,15 @@ export default function BlogDetailPage({ params }: PageProps) {
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         {p.images?.[0] && (
-                          <img
-                            src={p.images[0]}
-                            alt={p.title}
-                            className="w-14 h-14 rounded-lg object-cover bg-theme-bg shrink-0"
-                          />
+                          <div className="w-14 h-14 rounded-lg overflow-hidden bg-theme-bg shrink-0 relative">
+                            <Image
+                              src={p.images[0]}
+                              alt={p.title}
+                              fill
+                              sizes="56px"
+                              className="object-cover"
+                            />
+                          </div>
                         )}
                         <div className="min-w-0">
                           <h4 className="font-bold text-xs sm:text-sm text-theme-fg truncate">
@@ -482,11 +490,12 @@ export default function BlogDetailPage({ params }: PageProps) {
                       className="group flex items-start gap-3 p-2 rounded-xl hover:bg-theme-bg transition-colors"
                     >
                       <div className="w-16 h-16 rounded-xl overflow-hidden bg-theme-bg border border-theme-border shrink-0 relative">
-                        <img
+                        <Image
                           src={itemCover}
                           alt={item.title}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          loading="lazy"
+                          fill
+                          sizes="64px"
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
                       </div>
                       <div className="flex-1 min-w-0">

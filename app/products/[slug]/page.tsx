@@ -16,6 +16,8 @@ import {
 import { productApi } from "@/lib/api";
 import { IProduct } from "@/types/product";
 import { Badge } from "@/components/common/Badge";
+import { ProductGallery } from "@/components/features/products/ProductGallery";
+import { MarkdownRenderer } from "@/components/common/MarkdownRenderer";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -89,32 +91,12 @@ export default async function ProductDetailPage({ params }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
         {/* Left Gallery (5 cols) */}
-        <div className="lg:col-span-5 space-y-4">
-          <div className="card-surface overflow-hidden aspect-4/3 rounded-2xl relative bg-theme-bg">
-            <img
-              src={product.images?.[0] || "/next.svg"}
-              alt={product.title}
-              className="w-full h-full object-cover"
-            />
-            {product.isFeatured && (
-              <div className="absolute top-3 left-3">
-                <Badge variant="accent" size="sm" icon={<Sparkles className="w-3 h-3" />}>
-                  Saif&apos;s Top Pick
-                </Badge>
-              </div>
-            )}
-          </div>
-
-          {/* Additional thumbnails if available */}
-          {product.images && product.images.length > 1 && (
-            <div className="grid grid-cols-4 gap-2">
-              {product.images.map((img, i) => (
-                <div key={i} className="card-surface aspect-square overflow-hidden rounded-lg">
-                  <img src={img} alt={`Preview ${i}`} className="w-full h-full object-cover" />
-                </div>
-              ))}
-            </div>
-          )}
+        <div className="lg:col-span-5">
+          <ProductGallery
+            images={product.images}
+            title={product.title}
+            isFeatured={product.isFeatured}
+          />
         </div>
 
         {/* Right Details (7 cols) */}
@@ -212,8 +194,8 @@ export default async function ProductDetailPage({ params }: Props) {
             {product.description && (
               <div className="pt-6 border-t border-theme-border">
                 <h2 className="text-lg font-bold text-theme-fg mb-3">In-Depth Verdict & Review</h2>
-                <div className="prose prose-sm dark:prose-invert max-w-none text-theme-muted leading-relaxed whitespace-pre-line text-sm">
-                  {product.description}
+                <div className="card-surface p-5 sm:p-6 rounded-2xl border border-theme-border">
+                  <MarkdownRenderer content={product.description} />
                 </div>
               </div>
             )}

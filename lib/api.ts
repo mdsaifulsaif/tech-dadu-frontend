@@ -133,3 +133,61 @@ export const productApi = {
     }),
 };
 
+// Template / Digital Product API Methods
+export const templateApi = {
+  getAll: (params: Record<string, any> = {}) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        searchParams.append(key, String(value));
+      }
+    });
+    const queryString = searchParams.toString();
+    return apiRequest(`/templates${queryString ? `?${queryString}` : ""}`);
+  },
+  getBySlug: (slug: string) => apiRequest(`/templates/${slug}`),
+  getById: (id: string) => apiRequest(`/templates/id/${id}`),
+  trackAction: (id: string, type: "download" | "live_demo") =>
+    apiRequest(`/templates/${id}/action`, {
+      method: "POST",
+      body: JSON.stringify({ type }),
+    }),
+};
+
+// Blog API Methods
+export const blogApi = {
+  getAll: (params: Record<string, any> = {}) => {
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        searchParams.append(key, String(value));
+      }
+    });
+    const queryString = searchParams.toString();
+    return apiRequest(`/blogs${queryString ? `?${queryString}` : ""}`);
+  },
+  getBySlug: (slug: string) => apiRequest(`/blogs/${slug}`),
+  getById: (id: string) => apiRequest(`/blogs/id/${id}`),
+  getRelated: (id: string) => apiRequest(`/blogs/${id}/related`),
+};
+
+// Newsletter / Subscriber API Methods
+export const subscriberApi = {
+  subscribe: (email: string, source = "website_footer") =>
+    apiRequest("/newsletter/subscribe", {
+      method: "POST",
+      body: JSON.stringify({ email, source }),
+    }),
+  unsubscribe: (email: string) =>
+    apiRequest("/newsletter/unsubscribe", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+};
+
+// Site Setting API Methods
+export const siteSettingApi = {
+  get: () => apiRequest("/settings"),
+};
+
+

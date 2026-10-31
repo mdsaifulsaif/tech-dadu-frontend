@@ -37,6 +37,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/templates?category=ui-ux-design" className="hover:text-theme-primary transition-colors">
+                  UI/UX Design Kits
+                </Link>
+              </li>
+              <li>
                 <Link href="/blogs" className="hover:text-theme-primary transition-colors">
                   Top 10 Tech Listicles
                 </Link>

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { Sparkles, LogIn, UserPlus, LogOut, Shield, Laptop, BookOpen, Layers } from "lucide-react";
+import { Sparkles, LogIn, UserPlus, LogOut, Shield, Laptop, BookOpen, Layers, Palette } from "lucide-react";
+import { ThemeToggle } from "@/components/common/ThemeToggle";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -43,6 +44,13 @@ export default function Navbar() {
             <span>Templates</span>
           </Link>
           <Link
+            href="/templates?category=ui-ux-design"
+            className="flex items-center gap-1.5 hover:text-theme-primary transition-colors py-1"
+          >
+            <Palette className="w-4 h-4" />
+            <span>UI/UX Kits</span>
+          </Link>
+          <Link
             href="/blogs"
             className="flex items-center gap-1.5 hover:text-theme-primary transition-colors py-1"
           >
@@ -51,8 +59,10 @@ export default function Navbar() {
           </Link>
         </nav>
 
-        {/* Right Auth Section */}
-        <div className="flex items-center gap-3">
+        {/* Right Section: Theme Toggle & Auth */}
+        <div className="flex items-center gap-2.5">
+          <ThemeToggle />
+
           {isLoading ? (
             <div className="h-9 w-24 rounded-md bg-theme-muted animate-pulse opacity-50" />
           ) : session?.user ? (
@@ -75,10 +85,16 @@ export default function Navbar() {
                 </span>
 
                 {(session.user as any).role === "admin" && (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded bg-theme-primary text-theme-primary-fg">
+                  <a
+                    href="http://localhost:3002"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-theme-primary text-theme-primary-fg hover:opacity-90 transition-opacity"
+                    title="Open Admin Dashboard"
+                  >
                     <Shield className="w-2.5 h-2.5" />
-                    Admin
-                  </span>
+                    <span>Dashboard</span>
+                  </a>
                 )}
               </div>
 

@@ -18,7 +18,7 @@ export function LatestBlogsSection({ blogs }: LatestBlogsSectionProps) {
             <BookOpen className="w-3.5 h-3.5" />
             <span>Editorial Content</span>
           </div>
-          <h2 className="text-2xl font-bold text-theme-fg">Latest Tech Guides & Listicles</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-theme-fg">Latest Tech Guides & Listicles</h2>
         </div>
         <Link href="/blogs" className="btn-outline text-xs py-2 px-3.5 flex items-center gap-1.5">
           <span>View All</span>

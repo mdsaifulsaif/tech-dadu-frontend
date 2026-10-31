@@ -18,7 +18,7 @@ export function FeaturedProductsSection({ products }: FeaturedProductsSectionPro
             <Laptop className="w-3.5 h-3.5" />
             <span>Featured Hardware</span>
           </div>
-          <h2 className="text-2xl font-bold text-theme-fg">Curated Desk Setup Gear</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-theme-fg">Curated Desk Setup Gear</h2>
         </div>
         <Link href="/products" className="btn-outline text-xs py-2 px-3.5 flex items-center gap-1.5">
           <span>View All</span>
@@ -26,7 +26,7 @@ export function FeaturedProductsSection({ products }: FeaturedProductsSectionPro
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
         {products.slice(0, 4).map((p) => (
           <ProductCard key={p._id} product={p} />
         ))}

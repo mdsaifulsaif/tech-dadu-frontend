@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AnnouncementBar from "@/components/layout/AnnouncementBar";
+import TopDisclosureBar from "@/components/layout/TopDisclosureBar";
 
 export const metadata: Metadata = {
   title: "Tech Dadu | Curated Desk Setup Gear & Modern Web Dev Templates",
@@ -18,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+    <html lang="en" className="h-full antialiased overflow-x-hidden" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -41,12 +42,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-theme-bg text-theme-fg selection:bg-theme-primary selection:text-theme-primary-fg font-sans">
+      <body className="min-h-full flex flex-col bg-theme-bg text-theme-fg selection:bg-theme-primary selection:text-theme-primary-fg font-sans overflow-x-hidden max-w-full">
         <SessionProvider>
           <ThemeProvider>
             <AnnouncementBar />
+            <TopDisclosureBar />
             <Navbar />
-            <div className="flex-1 flex flex-col">{children}</div>
+            <div className="flex-1 flex flex-col overflow-x-hidden w-full max-w-full">{children}</div>
             <Footer />
           </ThemeProvider>
         </SessionProvider>

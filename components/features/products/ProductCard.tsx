@@ -53,49 +53,49 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           />
 
           {/* Badges Overlay */}
-          <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-10">
+          <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 flex flex-wrap gap-1 z-10">
             {product.isFeatured && (
-              <Badge variant="accent" size="sm" icon={<Sparkles className="w-3 h-3" />}>
-                Top Pick
+              <Badge variant="accent" size="sm" icon={<Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}>
+                <span className="text-[10px] sm:text-xs">Top Pick</span>
               </Badge>
             )}
             {product.badges?.slice(0, 1).map((b, i) => (
               <Badge key={i} variant="primary" size="sm">
-                {b}
+                <span className="text-[10px] sm:text-xs">{b}</span>
               </Badge>
             ))}
           </div>
 
           {/* Rating Pill */}
           {product.rating > 0 && (
-            <div className="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-md px-2 py-0.5 rounded-full flex items-center gap-1 text-[11px] font-bold text-amber-400">
-              <Star className="w-3 h-3 fill-current" />
+            <div className="absolute bottom-2 right-2 sm:bottom-2.5 sm:right-2.5 bg-black/75 backdrop-blur-md px-1.5 py-0.5 sm:px-2 rounded-full flex items-center gap-1 text-[10px] sm:text-[11px] font-bold text-amber-400">
+              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-current" />
               <span>{product.rating.toFixed(1)}</span>
             </div>
           )}
         </Link>
 
         {/* Card Content */}
-        <div className="p-5">
-          <div className="text-[11px] font-semibold uppercase tracking-wider text-theme-muted mb-1">
+        <div className="p-3 sm:p-5">
+          <div className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-theme-muted mb-0.5 sm:mb-1">
             {categoryName}
           </div>
 
           <Link href={`/products/${product.slug}`}>
-            <h3 className="font-bold text-base text-theme-fg line-clamp-2 hover:text-theme-primary transition-colors leading-snug">
+            <h3 className="font-bold text-xs sm:text-base text-theme-fg line-clamp-2 hover:text-theme-primary transition-colors leading-snug">
               {product.title}
             </h3>
           </Link>
 
           {product.shortSummary && (
-            <p className="text-xs text-theme-muted mt-2 line-clamp-2 leading-relaxed">
+            <p className="hidden sm:block text-xs text-theme-muted mt-2 line-clamp-2 leading-relaxed">
               {product.shortSummary}
             </p>
           )}
 
           {/* Key Pros List Preview */}
           {product.pros && product.pros.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-theme-border/60 space-y-1">
+            <div className="hidden sm:block mt-3 pt-3 border-t border-theme-border/60 space-y-1">
               {product.pros.slice(0, 2).map((pro, index) => (
                 <div key={index} className="flex items-center gap-1.5 text-[11px] text-theme-muted">
                   <Check className="w-3 h-3 text-theme-success shrink-0" />
@@ -108,11 +108,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
 
       {/* Footer Price & Affiliate CTA */}
-      <div className="p-5 pt-0">
-        <div className="flex items-center justify-between gap-3 pt-3 border-t border-theme-border">
-          <div>
-            <span className="text-xs text-theme-muted block">Price</span>
-            <span className="text-lg font-extrabold text-theme-fg tracking-tight">
+      <div className="p-3 sm:p-5 pt-0">
+        <div className="pt-2.5 sm:pt-3 border-t border-theme-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex items-baseline justify-between sm:block">
+            <span className="text-[10px] sm:text-xs text-theme-muted">Price</span>
+            <span className="text-sm sm:text-lg font-extrabold text-theme-fg tracking-tight">
               {product.price?.formatted || `$${product.price?.amount || 0}`}
             </span>
           </div>
@@ -120,15 +120,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {primaryAffiliate ? (
             <button
               onClick={handleAffiliateClick}
-              className="btn-primary text-xs py-2 px-3.5 inline-flex items-center gap-1.5"
+              className="w-full sm:w-auto btn-primary text-xs py-2 px-3 inline-flex items-center justify-center gap-1.5 font-semibold cursor-pointer"
             >
               <span>Buy on {primaryAffiliate.platform === "amazon" ? "Amazon" : "Store"}</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ExternalLink className="w-3.5 h-3.5 shrink-0" />
             </button>
           ) : (
             <Link
               href={`/products/${product.slug}`}
-              className="btn-outline text-xs py-2 px-3 inline-flex items-center gap-1"
+              className="w-full sm:w-auto btn-outline text-xs py-2 px-3 inline-flex items-center justify-center gap-1.5"
             >
               <span>Details</span>
               <ArrowRight className="w-3.5 h-3.5" />

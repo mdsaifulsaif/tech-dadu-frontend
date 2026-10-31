@@ -7,6 +7,8 @@ export interface ICategory {
   image?: string;
   type: "product" | "blog" | "template" | "all";
   order: number;
+  showInHero?: boolean;
+  isDefaultHero?: boolean;
 }
 
 export interface IAffiliateLink {

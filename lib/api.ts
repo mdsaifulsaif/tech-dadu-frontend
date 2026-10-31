@@ -190,4 +190,11 @@ export const siteSettingApi = {
   get: () => apiRequest("/settings"),
 };
 
+// Global Search API Methods
+export const searchApi = {
+  globalSearch: (q: string) =>
+    apiRequest(`/search?q=${encodeURIComponent(q)}`),
+};
+
+
 

@@ -18,7 +18,7 @@ export function FeaturedTemplatesSection({ templates }: FeaturedTemplatesSection
             <Layers className="w-3.5 h-3.5" />
             <span>Ship Fast</span>
           </div>
-          <h2 className="text-2xl font-bold text-theme-fg">Next.js & Fullstack Boilerplates</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-theme-fg">Next.js & Fullstack Boilerplates</h2>
         </div>
         <Link href="/templates" className="btn-outline text-xs py-2 px-3.5 flex items-center gap-1.5">
           <span>View All</span>

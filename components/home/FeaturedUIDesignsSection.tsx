@@ -18,7 +18,7 @@ export function FeaturedUIDesignsSection({ uiDesigns }: FeaturedUIDesignsSection
             <Palette className="w-3.5 h-3.5" />
             <span>Figma & Design Systems</span>
           </div>
-          <h2 className="text-2xl font-bold text-theme-fg">Curated UI/UX Design Kits</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-theme-fg">Curated UI/UX Design Kits</h2>
         </div>
         <Link href="/templates?category=ui-ux-design" className="btn-outline text-xs py-2 px-3.5 flex items-center gap-1.5">
           <span>View All</span>

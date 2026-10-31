@@ -43,39 +43,39 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
           />
 
           {/* Category Pill */}
-          <div className="absolute top-2.5 left-2.5 z-10">
-            <Badge variant="primary" size="sm" icon={<BookOpen className="w-3 h-3" />}>
-              {categoryName}
+          <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-10">
+            <Badge variant="primary" size="sm" icon={<BookOpen className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}>
+              <span className="text-[10px] sm:text-xs">{categoryName}</span>
             </Badge>
           </div>
 
           {/* Reading Time Pill */}
           {blog.readingTime && (
-            <div className="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-md px-2 py-0.5 rounded-full flex items-center gap-1 text-[11px] font-semibold text-white">
-              <Clock className="w-3 h-3 text-theme-muted" />
+            <div className="absolute bottom-2 right-2 sm:bottom-2.5 sm:right-2.5 bg-black/75 backdrop-blur-md px-1.5 py-0.5 sm:px-2 rounded-full flex items-center gap-1 text-[10px] sm:text-[11px] font-semibold text-white">
+              <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-theme-muted" />
               <span>{blog.readingTime}m read</span>
             </div>
           )}
         </Link>
 
         {/* Content */}
-        <div className="p-5 flex-1 flex flex-col justify-between">
+        <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between">
           <div>
-            <div className="flex items-center gap-3 text-[11px] text-theme-muted mb-2 font-medium">
+            <div className="flex items-center gap-1.5 sm:gap-3 text-[10px] sm:text-[11px] text-theme-muted mb-1 sm:mb-2 font-medium">
               <span>{formattedDate}</span>
               {blog.views > 0 && (
                 <>
                   <span>•</span>
                   <span className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" />
-                    {blog.views} views
+                    <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                    {blog.views}
                   </span>
                 </>
               )}
             </div>
 
             <Link href={`/blogs/${blog.slug}`}>
-              <h3 className="font-bold text-base text-theme-fg line-clamp-2 hover:text-theme-primary transition-colors leading-snug">
+              <h3 className="font-bold text-sm sm:text-base text-theme-fg line-clamp-2 hover:text-theme-primary transition-colors leading-snug">
                 {blog.title}
               </h3>
             </Link>
@@ -89,7 +89,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
 
           {/* Tags */}
           {blog.tags && blog.tags.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-1.5 pt-1">
+            <div className="flex mt-3 sm:mt-4 flex-wrap gap-1.5 pt-1">
               {blog.tags.slice(0, 3).map((tag, i) => (
                 <span
                   key={i}
@@ -105,10 +105,10 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
       </div>
 
       {/* Card Footer */}
-      <div className="px-5 pb-5 pt-2 border-t border-theme-border/60">
+      <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-2.5 border-t border-theme-border/60">
         <Link
           href={`/blogs/${blog.slug}`}
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-theme-primary hover:text-theme-primary-hover group/link"
+          className="w-full sm:w-auto btn-outline text-xs py-2 px-3 inline-flex items-center justify-center gap-1.5 font-semibold text-theme-primary hover:text-theme-primary-hover group/link"
         >
           <span>Read Full Guide</span>
           <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-1" />

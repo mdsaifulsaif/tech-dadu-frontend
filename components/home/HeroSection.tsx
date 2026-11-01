@@ -14,6 +14,7 @@ import type { Session } from "next-auth";
 import { IProduct, IDigitalProduct, ICategory } from "@/types";
 import { productApi } from "@/lib/api";
 import { GlobalSearch } from "@/components/common/GlobalSearch";
+import HeroBoxGrid from "./HeroBoxGrid";
 
 interface HeroSectionProps {
   session?: Session | null;
@@ -254,9 +255,63 @@ export function HeroSection({
   return (
     <div className="flex w-full flex-col bg-theme-bg transition-colors duration-200">
       {/* Compact Dark Hero Band - Optimized for Laptop Full-screen without Scrolling */}
-      <section className="bg-[#14102b] dark:bg-[#0c091d] pt-6 pb-12 sm:pt-8 sm:pb-16 text-white transition-colors duration-200">
-        <div className="mx-auto max-w-[840px] px-4 sm:px-6 text-center">
-          {/* Big Headline: Line 1 + Line 2 compare */}
+
+
+
+      {/* <section className="bg-[#14102b] dark:bg-[#0c091d] pt-6 pb-12 sm:pt-8 sm:pb-16 text-white transition-colors duration-200">
+          <div className="mx-auto max-w-[840px] px-4 sm:px-6 text-center">
+  
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-extrabold leading-[1.08] tracking-tight text-white">
+              <span className="block">Don&apos;t buy before you</span>
+              <span className="font-serif font-normal italic tracking-normal text-[#b8a6ff]">
+                compare.
+              </span>
+            </h1>
+
+     
+            <div className="mt-4 mb-3 max-w-xl mx-auto">
+              <GlobalSearch
+                variant="hero"
+                placeholder="Search keyboards, desk gear, templates, guides..."
+              />
+            </div>
+
+      
+            {availableCategories.length > 0 && (
+              <div
+                className="mt-3 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2"
+                role="tablist"
+                aria-label="Comparison categories"
+              >
+                {availableCategories.map((cat) => {
+                  const isActive = currentCategory?.slug === cat.slug;
+                  return (
+                    <button
+                      key={cat._id || cat.slug}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      onClick={() => setActiveTab(cat.slug)}
+                      className={`min-h-9 cursor-pointer rounded-full px-3.5 sm:px-4 text-xs sm:text-sm transition-all duration-150 ${isActive
+                        ? "bg-white font-bold text-[#14102b] shadow-md scale-102"
+                        : "border border-[#3b3078] font-medium text-[#e4dcff] hover:bg-white/10"
+                        }`}
+                    >
+                      {cat.name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </section> */}
+
+
+      <section className="relative overflow-hidden bg-[#14102b] dark:bg-[#0c091d] pt-6 pb-12 sm:pt-12 sm:pb-16 text-white transition-colors duration-200">
+        <HeroBoxGrid />
+
+        <div className="relative z-10 mx-auto max-w-[840px] px-4 sm:px-6 text-center">
+          {/* Big Headline */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-extrabold leading-[1.08] tracking-tight text-white">
             <span className="block">Don&apos;t buy before you</span>
             <span className="font-serif font-normal italic tracking-normal text-[#b8a6ff]">
@@ -264,7 +319,7 @@ export function HeroSection({
             </span>
           </h1>
 
-          {/* Global Search Bar (Replaced short description) */}
+          {/* Global Search Bar */}
           <div className="mt-4 mb-3 max-w-xl mx-auto">
             <GlobalSearch
               variant="hero"
@@ -289,8 +344,8 @@ export function HeroSection({
                     aria-selected={isActive}
                     onClick={() => setActiveTab(cat.slug)}
                     className={`min-h-9 cursor-pointer rounded-full px-3.5 sm:px-4 text-xs sm:text-sm transition-all duration-150 ${isActive
-                        ? "bg-white font-bold text-[#14102b] shadow-md scale-102"
-                        : "border border-[#3b3078] font-medium text-[#e4dcff] hover:bg-white/10"
+                      ? "bg-white font-bold text-[#14102b] shadow-md scale-102"
+                      : "border border-[#3b3078] font-medium text-[#e4dcff] hover:bg-white/10"
                       }`}
                   >
                     {cat.name}
@@ -301,6 +356,7 @@ export function HeroSection({
           )}
         </div>
       </section>
+
 
       {/* Comparison card: compact overlap for laptop view */}
       <section className="relative z-10 mx-auto -mt-8 sm:-mt-10 w-full max-w-[1100px] px-4 sm:px-6">

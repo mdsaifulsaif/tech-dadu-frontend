@@ -57,16 +57,14 @@ function DesktopNavLinks() {
           <Link
             key={item.href}
             href={item.href}
-            className={`relative h-full flex items-center gap-1.5 px-1 transition-colors ${
-              isActive
-                ? "text-theme-primary font-semibold"
-                : "text-theme-muted hover:text-theme-fg"
-            }`}
+            className={`relative h-full flex items-center gap-1.5 px-1 transition-colors ${isActive
+              ? "text-theme-primary font-semibold"
+              : "text-theme-muted hover:text-theme-fg"
+              }`}
           >
             <item.icon
-              className={`w-4 h-4 transition-colors ${
-                isActive ? "text-theme-primary" : "text-theme-muted"
-              }`}
+              className={`w-4 h-4 transition-colors ${isActive ? "text-theme-primary" : "text-theme-muted"
+                }`}
             />
             <span>{item.label}</span>
             {isActive && (
@@ -93,17 +91,15 @@ function MobileNavLinks({ closeMobileMenu }: { closeMobileMenu: () => void }) {
             key={item.href}
             href={item.href}
             onClick={closeMobileMenu}
-            className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-              isActive
-                ? "bg-theme-primary/10 text-theme-primary font-semibold border-l-4 border-theme-primary"
-                : "text-theme-fg hover:bg-theme-surface-hover hover:text-theme-primary"
-            }`}
+            className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive
+              ? "bg-theme-primary/10 text-theme-primary font-semibold border-l-4 border-theme-primary"
+              : "text-theme-fg hover:bg-theme-surface-hover hover:text-theme-primary"
+              }`}
           >
             <div className="flex items-center gap-2.5">
               <item.icon
-                className={`w-4 h-4 ${
-                  isActive ? "text-theme-primary" : "text-theme-muted"
-                }`}
+                className={`w-4 h-4 ${isActive ? "text-theme-primary" : "text-theme-muted"
+                  }`}
               />
               <span>{item.label}</span>
             </div>
@@ -126,7 +122,7 @@ export default function Navbar() {
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-theme-surface/95 border-b border-theme-border backdrop-blur-md transition-colors duration-200">
+    <header className="sticky top-0 z-50 bg-theme-surface/95 border-b border-theme-border/40 backdrop-blur-md transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
         {/* Brand Logo */}
         <Link href="/" onClick={closeMobileMenu} className="flex items-center gap-2 group shrink-0">

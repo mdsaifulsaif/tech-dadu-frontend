@@ -154,9 +154,19 @@ export default function Footer() {
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-theme-fg mb-3">
-              Account & Legal
+              Company & Legal
             </h4>
             <ul className="space-y-2 text-sm text-theme-muted">
+              <li>
+                <Link href="/about" className="hover:text-theme-primary transition-colors">
+                  About Tech Dadu
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="hover:text-theme-primary transition-colors">
+                  Privacy Policy & Disclosure
+                </Link>
+              </li>
               <li>
                 <Link href="/login" className="hover:text-theme-primary transition-colors">
                   Sign In
@@ -167,17 +177,29 @@ export default function Footer() {
                   Create Account
                 </Link>
               </li>
-              <li>
-                <Link href="/privacy" className="hover:text-theme-primary transition-colors">
-                  Privacy Policy
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
 
-        <div className="pt-6 border-t border-theme-border flex flex-col sm:flex-row items-center justify-between text-xs text-theme-muted gap-4">
-          <p>© {new Date().getFullYear()} Tech Dadu. All rights reserved.</p>
+        {/* Amazon Associates Legal Disclaimer Bar */}
+        <div className="py-4 border-t border-theme-border/60 text-[11px] text-theme-muted leading-relaxed">
+          <p>
+            <strong className="text-theme-fg font-medium">Affiliate Disclaimer:</strong> Tech Dadu is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com. As an Amazon Associate, we earn from qualifying purchases at no extra cost to you.
+          </p>
+        </div>
+
+        <div className="pt-4 border-t border-theme-border flex flex-col sm:flex-row items-center justify-between text-xs text-theme-muted gap-4">
+          <div className="flex items-center gap-4">
+            <p>© {new Date().getFullYear()} Tech Dadu. All rights reserved.</p>
+            <span className="hidden sm:inline text-theme-border">•</span>
+            <Link href="/privacy" className="hover:text-theme-primary transition-colors">
+              Privacy
+            </Link>
+            <span className="text-theme-border">•</span>
+            <Link href="/about" className="hover:text-theme-primary transition-colors">
+              About Us
+            </Link>
+          </div>
           <p className="flex items-center gap-1">
             Built with <Heart className="w-3.5 h-3.5 text-theme-danger fill-current" /> by Saif
           </p>

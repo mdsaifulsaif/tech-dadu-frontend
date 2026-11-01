@@ -42,13 +42,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-theme-bg text-theme-fg selection:bg-theme-primary selection:text-theme-primary-fg font-sans overflow-x-hidden max-w-full">
+      <body className="min-h-full flex flex-col bg-theme-bg text-theme-fg selection:bg-theme-primary selection:text-theme-primary-fg font-sans overflow-x-clip max-w-full">
         <SessionProvider>
           <ThemeProvider>
             <AnnouncementBar />
             <TopDisclosureBar />
             <Navbar />
-            <div className="flex-1 flex flex-col overflow-x-hidden w-full max-w-full">{children}</div>
+            <div className="flex-1 flex flex-col overflow-x-clip w-full max-w-full">{children}</div>
             <Footer />
           </ThemeProvider>
         </SessionProvider>

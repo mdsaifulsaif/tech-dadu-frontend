@@ -10,6 +10,10 @@ import {
   LatestBlogsSection,
 } from "@/components/home";
 
+// Smart ISR: Cache page for 60 seconds so thousands of visitors get instant cached HTML
+// without hitting the database repeatedly. Revalidates automatically in the background.
+export const revalidate = 60;
+
 export default async function Home() {
   const session = await auth();
 

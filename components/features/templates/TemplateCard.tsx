@@ -122,21 +122,22 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({ template }) => {
       </div>
 
       {/* Card Footer / Action Buttons */}
-      <div className="px-3 pb-3 sm:px-5 sm:pb-5 pt-2.5 border-t border-theme-border/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+      <div className="px-3 pb-3 sm:px-5 sm:pb-5 pt-2.5 border-t border-theme-border/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-1.5 sm:gap-2">
         {template.liveDemoUrl ? (
           <button
             onClick={(e) => handleAction("live_demo", template.liveDemoUrl, e)}
-            className="w-full sm:flex-1 btn-outline text-xs py-2 px-3 flex items-center justify-center gap-1.5 cursor-pointer font-medium"
+            className="w-full sm:flex-1 btn-outline text-xs py-1.5 sm:py-2 px-2 sm:px-3 flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer font-medium whitespace-nowrap overflow-hidden min-w-0"
+            title="Live Demo"
           >
-            <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-            <span>Demo</span>
+            <Eye className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+            <span className="truncate">Demo</span>
           </button>
         ) : (
           <Link
             href={`/templates/${template.slug}`}
-            className="w-full sm:flex-1 btn-outline text-xs py-2 px-3 text-center font-medium"
+            className="w-full sm:flex-1 btn-outline text-xs py-1.5 sm:py-2 px-2 sm:px-3 text-center font-medium whitespace-nowrap overflow-hidden min-w-0"
           >
-            Details
+            <span className="truncate">Details</span>
           </Link>
         )}
 
@@ -148,17 +149,18 @@ export const TemplateCard: React.FC<TemplateCardProps> = ({ template }) => {
               e
             )
           }
-          className="w-full sm:flex-1 btn-primary text-xs py-2 px-3.5 flex items-center justify-center gap-1.5 font-semibold cursor-pointer shadow-xs"
+          className="w-full sm:flex-1 btn-primary text-xs py-1.5 sm:py-2 px-2 sm:px-3.5 flex items-center justify-center gap-1 sm:gap-1.5 font-semibold cursor-pointer shadow-xs whitespace-nowrap overflow-hidden min-w-0"
+          title={template.isFree ? "Get Free" : `Buy $${template.price}`}
         >
           {template.isFree ? (
             <>
-              <Download className="w-3.5 h-3.5" />
-              <span>Get Free</span>
+              <Download className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+              <span className="truncate">Get Free</span>
             </>
           ) : (
             <>
-              <ExternalLink className="w-3.5 h-3.5" />
-              <span>Buy ${template.price}</span>
+              <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+              <span className="truncate">Buy ${template.price}</span>
             </>
           )}
         </button>

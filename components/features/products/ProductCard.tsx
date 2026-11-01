@@ -120,18 +120,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {primaryAffiliate ? (
             <button
               onClick={handleAffiliateClick}
-              className="w-full sm:w-auto btn-primary text-xs py-2 px-3 inline-flex items-center justify-center gap-1.5 font-semibold cursor-pointer"
+              className="w-full sm:w-auto btn-primary text-xs py-2 px-2 sm:px-3 inline-flex items-center justify-center gap-1 sm:gap-1.5 font-semibold cursor-pointer whitespace-nowrap overflow-hidden min-w-0"
+              title={`Buy on ${primaryAffiliate.platform === "amazon" ? "Amazon" : "Store"}`}
             >
-              <span>Buy on {primaryAffiliate.platform === "amazon" ? "Amazon" : "Store"}</span>
-              <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Buy on {primaryAffiliate.platform === "amazon" ? "Amazon" : "Store"}</span>
+              <ExternalLink className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
             </button>
           ) : (
             <Link
               href={`/products/${product.slug}`}
-              className="w-full sm:w-auto btn-outline text-xs py-2 px-3 inline-flex items-center justify-center gap-1.5"
+              className="w-full sm:w-auto btn-outline text-xs py-2 px-2 sm:px-3 inline-flex items-center justify-center gap-1 sm:gap-1.5 whitespace-nowrap overflow-hidden min-w-0"
             >
-              <span>Details</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span className="truncate">Details</span>
+              <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
             </Link>
           )}
         </div>

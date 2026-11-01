@@ -81,7 +81,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
             </Link>
 
             {blog.excerpt && (
-              <p className="text-xs text-theme-muted mt-2 line-clamp-2 leading-relaxed">
+              <p className="hidden sm:block text-xs text-theme-muted mt-2 line-clamp-2 leading-relaxed">
                 {blog.excerpt}
               </p>
             )}
@@ -89,7 +89,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
 
           {/* Tags */}
           {blog.tags && blog.tags.length > 0 && (
-            <div className="flex mt-3 sm:mt-4 flex-wrap gap-1.5 pt-1">
+            <div className="hidden sm:flex mt-3 sm:mt-4 flex-wrap gap-1.5 pt-1">
               {blog.tags.slice(0, 3).map((tag, i) => (
                 <span
                   key={i}
@@ -105,13 +105,13 @@ export const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
       </div>
 
       {/* Card Footer */}
-      <div className="px-4 pb-4 sm:px-5 sm:pb-5 pt-2.5 border-t border-theme-border/60">
+      <div className="px-3 pb-3 sm:px-5 sm:pb-5 pt-2 sm:pt-2.5 border-t border-theme-border/60">
         <Link
           href={`/blogs/${blog.slug}`}
-          className="w-full sm:w-auto btn-outline text-xs py-2 px-3 inline-flex items-center justify-center gap-1.5 font-semibold text-theme-primary hover:text-theme-primary-hover group/link"
+          className="w-full sm:w-auto btn-outline text-xs py-1.5 sm:py-2 px-2 sm:px-3 inline-flex items-center justify-center gap-1 sm:gap-1.5 font-semibold text-theme-primary hover:text-theme-primary-hover group/link whitespace-nowrap overflow-hidden min-w-0"
         >
-          <span>Read Full Guide</span>
-          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover/link:translate-x-1" />
+          <span className="truncate">Read Guide</span>
+          <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 transition-transform group-hover/link:translate-x-1" />
         </Link>
       </div>
     </article>

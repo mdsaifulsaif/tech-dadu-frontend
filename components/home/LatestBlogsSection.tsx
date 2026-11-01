@@ -26,7 +26,7 @@ export function LatestBlogsSection({ blogs }: LatestBlogsSectionProps) {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
         {blogs.slice(0, 3).map((blog) => (
           <BlogCard key={blog._id} blog={blog} />
         ))}

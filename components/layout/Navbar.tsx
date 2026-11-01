@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
   LogIn,
@@ -19,6 +20,102 @@ import {
 } from "lucide-react";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { GlobalSearch } from "@/components/common/GlobalSearch";
+
+const NAV_ITEMS = [
+  { href: "/products", label: "Desk Setup", icon: Laptop },
+  { href: "/templates", label: "Templates", icon: Layers },
+  { href: "/templates?category=ui-ux-design", label: "UI/UX Kits", icon: Palette },
+  { href: "/blogs", label: "Guides & Blog", icon: BookOpen },
+];
+
+function checkIsActive(href: string, pathname: string, currentCategory: string | null): boolean {
+  if (href === "/products") {
+    return pathname.startsWith("/products");
+  }
+  if (href === "/blogs") {
+    return pathname.startsWith("/blogs");
+  }
+  if (href.startsWith("/templates?category=ui-ux-design")) {
+    return pathname.startsWith("/templates") && currentCategory === "ui-ux-design";
+  }
+  if (href === "/templates") {
+    return pathname.startsWith("/templates") && currentCategory !== "ui-ux-design";
+  }
+  return pathname === href;
+}
+
+function DesktopNavLinks() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentCategory = searchParams ? searchParams.get("category") : null;
+
+  return (
+    <nav className="hidden md:flex items-center gap-6 h-full text-sm font-medium">
+      {NAV_ITEMS.map((item) => {
+        const isActive = checkIsActive(item.href, pathname, currentCategory);
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`relative h-full flex items-center gap-1.5 px-1 transition-colors ${
+              isActive
+                ? "text-theme-primary font-semibold"
+                : "text-theme-muted hover:text-theme-fg"
+            }`}
+          >
+            <item.icon
+              className={`w-4 h-4 transition-colors ${
+                isActive ? "text-theme-primary" : "text-theme-muted"
+              }`}
+            />
+            <span>{item.label}</span>
+            {isActive && (
+              <span className="absolute bottom-0 left-0 right-0 h-[2.5px] rounded-t-full bg-theme-primary transition-all duration-200" />
+            )}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+function MobileNavLinks({ closeMobileMenu }: { closeMobileMenu: () => void }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentCategory = searchParams ? searchParams.get("category") : null;
+
+  return (
+    <nav className="flex flex-col space-y-1">
+      {NAV_ITEMS.map((item) => {
+        const isActive = checkIsActive(item.href, pathname, currentCategory);
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={closeMobileMenu}
+            className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              isActive
+                ? "bg-theme-primary/10 text-theme-primary font-semibold border-l-4 border-theme-primary"
+                : "text-theme-fg hover:bg-theme-surface-hover hover:text-theme-primary"
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <item.icon
+                className={`w-4 h-4 ${
+                  isActive ? "text-theme-primary" : "text-theme-muted"
+                }`}
+              />
+              <span>{item.label}</span>
+            </div>
+            {isActive && (
+              <span className="w-1.5 h-1.5 rounded-full bg-theme-primary" />
+            )}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -44,36 +141,24 @@ export default function Navbar() {
         </Link>
 
         {/* Center Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-5 text-sm font-medium text-theme-muted">
-          <Link
-            href="/products"
-            className="flex items-center gap-1.5 hover:text-theme-primary transition-colors py-1"
-          >
-            <Laptop className="w-4 h-4" />
-            <span>Desk Setup</span>
-          </Link>
-          <Link
-            href="/templates"
-            className="flex items-center gap-1.5 hover:text-theme-primary transition-colors py-1"
-          >
-            <Layers className="w-4 h-4" />
-            <span>Templates</span>
-          </Link>
-          <Link
-            href="/templates?category=ui-ux-design"
-            className="flex items-center gap-1.5 hover:text-theme-primary transition-colors py-1"
-          >
-            <Palette className="w-4 h-4" />
-            <span>UI/UX Kits</span>
-          </Link>
-          <Link
-            href="/blogs"
-            className="flex items-center gap-1.5 hover:text-theme-primary transition-colors py-1"
-          >
-            <BookOpen className="w-4 h-4" />
-            <span>Guides & Blog</span>
-          </Link>
-        </nav>
+        <Suspense
+          fallback={
+            <nav className="hidden md:flex items-center gap-6 h-full text-sm font-medium text-theme-muted">
+              {NAV_ITEMS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="relative h-full flex items-center gap-1.5 px-1 hover:text-theme-primary transition-colors"
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          }
+        >
+          <DesktopNavLinks />
+        </Suspense>
 
         {/* Right Section: Global Search, Theme Toggle, Auth & Mobile Menu */}
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -174,40 +259,25 @@ export default function Navbar() {
       {/* Mobile Menu Dropdown Drawer */}
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-theme-border bg-theme-surface/98 px-4 py-4 space-y-3 shadow-xl animate-in slide-in-from-top-2 duration-150">
-          <nav className="flex flex-col space-y-1">
-            <Link
-              href="/products"
-              onClick={closeMobileMenu}
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-theme-fg hover:bg-theme-surface-hover hover:text-theme-primary transition-colors"
-            >
-              <Laptop className="w-4 h-4 text-theme-primary" />
-              <span>Desk Setup Gear</span>
-            </Link>
-            <Link
-              href="/templates"
-              onClick={closeMobileMenu}
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-theme-fg hover:bg-theme-surface-hover hover:text-theme-primary transition-colors"
-            >
-              <Layers className="w-4 h-4 text-theme-primary" />
-              <span>Next.js Templates</span>
-            </Link>
-            <Link
-              href="/templates?category=ui-ux-design"
-              onClick={closeMobileMenu}
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-theme-fg hover:bg-theme-surface-hover hover:text-theme-primary transition-colors"
-            >
-              <Palette className="w-4 h-4 text-theme-primary" />
-              <span>UI/UX Design Kits</span>
-            </Link>
-            <Link
-              href="/blogs"
-              onClick={closeMobileMenu}
-              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-theme-fg hover:bg-theme-surface-hover hover:text-theme-primary transition-colors"
-            >
-              <BookOpen className="w-4 h-4 text-theme-primary" />
-              <span>Guides & Tech Blogs</span>
-            </Link>
-          </nav>
+          <Suspense
+            fallback={
+              <nav className="flex flex-col space-y-1">
+                {NAV_ITEMS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-theme-fg hover:bg-theme-surface-hover hover:text-theme-primary transition-colors"
+                  >
+                    <item.icon className="w-4 h-4 text-theme-primary" />
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </nav>
+            }
+          >
+            <MobileNavLinks closeMobileMenu={closeMobileMenu} />
+          </Suspense>
 
           <div className="pt-3 border-t border-theme-border/60">
             {session?.user ? (
@@ -283,30 +353,41 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Global Search Popover Modal (When opened from Navbar) */}
+      {/* Global Search Popover Modal (Starts below Navbar so Navbar NEVER darkens) */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="card-surface w-full max-w-2xl rounded-2xl p-4 sm:p-5 relative shadow-2xl border border-theme-border animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between mb-3 pb-2 border-b border-theme-border">
-              <span className="text-xs font-bold uppercase tracking-wider text-theme-muted">
-                Search Tech Dadu Catalog
-              </span>
-              <button
-                onClick={() => setIsSearchOpen(false)}
-                className="p-1 rounded-lg text-theme-muted hover:text-theme-fg hover:bg-theme-surface-hover"
-                title="Close (Esc)"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+        <>
+          {/* Backdrop below navbar */}
+          <div
+            onClick={() => setIsSearchOpen(false)}
+            className="fixed inset-x-0 top-16 bottom-0 z-40 bg-black/40 backdrop-blur-xs animate-in fade-in duration-150"
+            aria-hidden="true"
+          />
 
-            <GlobalSearch
-              variant="header"
-              placeholder="Type to search desk gear, templates, UI kits, blogs..."
-              onSelect={() => setIsSearchOpen(false)}
-            />
+          {/* Floating Search Popover right below navbar */}
+          <div className="fixed inset-x-0 top-16 z-50 flex justify-center px-4 pt-3 sm:pt-4 pointer-events-none">
+            <div className="card-surface w-full max-w-2xl rounded-2xl p-4 sm:p-5 shadow-2xl border border-theme-border animate-in zoom-in-95 duration-150 pointer-events-auto">
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-theme-border">
+                <span className="text-xs font-bold uppercase tracking-wider text-theme-muted">
+                  Search Tech Dadu Catalog
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsSearchOpen(false)}
+                  className="p-1 rounded-lg text-theme-muted hover:text-theme-fg hover:bg-theme-surface-hover transition-colors"
+                  title="Close (Esc)"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <GlobalSearch
+                variant="header"
+                placeholder="Type to search desk gear, templates, UI kits, blogs..."
+                onSelect={() => setIsSearchOpen(false)}
+              />
+            </div>
           </div>
-        </div>
+        </>
       )}
     </header>
   );

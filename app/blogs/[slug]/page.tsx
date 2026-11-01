@@ -23,7 +23,6 @@ import { blogApi, productApi } from "@/lib/api";
 import { IBlog, IProduct } from "@/types";
 import { Badge } from "@/components/common/Badge";
 import { MarkdownRenderer } from "@/components/common/MarkdownRenderer";
-import { NewsletterBox } from "@/components/features/newsletter/NewsletterBox";
 import { BlogCard } from "@/components/features/blogs/BlogCard";
 
 // Custom Brand SVG Icons
@@ -443,15 +442,6 @@ export default function BlogDetailPage({ params }: PageProps) {
               </p>
             </div>
           </div>
-
-          {/* Lead Capture Newsletter Box */}
-          <div className="mt-12">
-            <NewsletterBox
-              source={`blog_${blog.slug}`}
-              title="Liked This Guide? Get More In Your Inbox"
-              subtitle="Join developers and tech enthusiasts receiving our weekly handpicked gear setups, deep-dives, and free starter kits."
-            />
-          </div>
         </div>
 
         {/* Right Sticky Sidebar (Professional Editorial Desktop Companion) */}
@@ -612,7 +602,7 @@ export default function BlogDetailPage({ params }: PageProps) {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
             {relatedBlogs.slice(0, 3).map((item) => (
               <BlogCard key={item._id} blog={item} />
             ))}

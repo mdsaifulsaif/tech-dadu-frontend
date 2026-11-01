@@ -68,7 +68,7 @@ export function HeroSection({
   products = [],
   templates = [],
 }: HeroSectionProps) {
-  // 1. Available Categories filtered by showInHero flag (or graceful fallback)
+  // 1. Available Categories: ONLY categories explicitly marked showInHero === true
   const availableCategories = useMemo(() => {
     if (!categories || categories.length === 0) return [];
 
@@ -76,47 +76,12 @@ export function HeroSection({
       (c) => c.type === "product" || c.type === "template" || c.type === "all"
     );
 
-    // Only categories explicitly marked showInHero === true
-    const heroFlagged = candidateCats.filter((c) => Boolean(c.showInHero));
+    // Strictly ONLY categories with showInHero === true
+    const heroCategories = candidateCats.filter((c) => Boolean(c.showInHero));
 
-    // Fallback if none explicitly marked: pick categories that actually have items
-    let finalCats = heroFlagged;
-    if (finalCats.length === 0) {
-      finalCats = candidateCats.filter((cat) => {
-        const catId = String(cat._id);
-        const catSlug = cat.slug?.toLowerCase();
-
-        const hasProducts = products.some((p) => {
-          const pCatId =
-            typeof p.category === "object"
-              ? String(p.category?._id)
-              : String(p.category || "");
-          const pCatSlug =
-            typeof p.category === "object"
-              ? p.category?.slug?.toLowerCase()
-              : "";
-          return pCatId === catId || pCatSlug === catSlug;
-        });
-
-        const hasTemplates = templates.some((t) => {
-          const tCatId =
-            typeof t.category === "object"
-              ? String(t.category?._id)
-              : String(t.category || "");
-          const tCatSlug =
-            typeof t.category === "object"
-              ? t.category?.slug?.toLowerCase()
-              : "";
-          return tCatId === catId || tCatSlug === catSlug;
-        });
-
-        return hasProducts || hasTemplates;
-      });
-    }
-
-    // Sort by order ascending
-    return [...finalCats].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  }, [categories, products, templates]);
+    // Sort strictly by display order (order ascending: 1, 2, 3...)
+    return [...heroCategories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  }, [categories]);
 
   // 2. Active Tab State with Default Hero Tab detection
   const defaultCategory = useMemo(() => {
@@ -159,8 +124,8 @@ export function HeroSection({
     let rowItems: IComparisonRow[] = [];
 
     if (isTemplateCat) {
-      // Find templates matching current category
-      const matched = templates.filter((t) => {
+      // Find templates matching current category that are explicitly featured for comparison
+      let matched = templates.filter((t) => {
         const tCatId =
           typeof t.category === "object"
             ? String(t.category?._id)
@@ -169,20 +134,19 @@ export function HeroSection({
           typeof t.category === "object"
             ? t.category?.slug?.toLowerCase()
             : "";
-        return tCatId === catId || tCatSlug === catSlug;
+        const isCatMatch = tCatId === catId || tCatSlug === catSlug;
+        return isCatMatch && Boolean(t.comparison?.isFeatured);
       });
 
-      // Prioritize items marked comparison.isFeatured === true
-      const sorted = [...matched].sort((a, b) => {
-        const aFeat = a.comparison?.isFeatured ? 1 : 0;
-        const bFeat = b.comparison?.isFeatured ? 1 : 0;
-        return bFeat - aFeat;
-      });
+      // Fallback: if no direct category match, show any featured templates
+      if (matched.length === 0) {
+        matched = templates.filter((t) => Boolean(t.comparison?.isFeatured));
+      }
 
       const fallbackBadges = ["Best Overall", "Best Value", "Top Pick"];
 
       // MAX 3 ITEMS strictly
-      rowItems = sorted.slice(0, 3).map((item, idx) => {
+      rowItems = matched.slice(0, 3).map((item, idx) => {
         const badge =
           item.comparison?.badge || fallbackBadges[idx] || "Our Pick";
         const priceText = item.isFree ? "Free" : `$${item.price ?? 0}`;
@@ -208,8 +172,8 @@ export function HeroSection({
         };
       });
     } else {
-      // Find products matching current category
-      const matched = products.filter((p) => {
+      // Find products matching current category that are explicitly featured for comparison
+      let matched = products.filter((p) => {
         const pCatId =
           typeof p.category === "object"
             ? String(p.category?._id)
@@ -218,20 +182,19 @@ export function HeroSection({
           typeof p.category === "object"
             ? p.category?.slug?.toLowerCase()
             : "";
-        return pCatId === catId || pCatSlug === catSlug;
+        const isCatMatch = pCatId === catId || pCatSlug === catSlug;
+        return isCatMatch && Boolean(p.comparison?.isFeatured);
       });
 
-      // Prioritize items marked comparison.isFeatured === true
-      const sorted = [...matched].sort((a, b) => {
-        const aFeat = a.comparison?.isFeatured ? 1 : 0;
-        const bFeat = b.comparison?.isFeatured ? 1 : 0;
-        return bFeat - aFeat;
-      });
+      // Fallback: if no direct category match, show any featured products
+      if (matched.length === 0) {
+        matched = products.filter((p) => Boolean(p.comparison?.isFeatured));
+      }
 
       const fallbackBadges = ["Best Overall", "Best Value", "Top Pick"];
 
       // MAX 3 ITEMS strictly
-      rowItems = sorted.slice(0, 3).map((item, idx) => {
+      rowItems = matched.slice(0, 3).map((item, idx) => {
         const badge =
           item.comparison?.badge || fallbackBadges[idx] || "Our Pick";
         const priceText = item.price?.formatted
@@ -274,7 +237,7 @@ export function HeroSection({
 
   const handleCheckPrice = (row: IComparisonRow) => {
     if (row.id) {
-      productApi.trackClick(row.id).catch(() => {});
+      productApi.trackClick(row.id).catch(() => { });
     }
     if (row.affiliateUrl && row.affiliateUrl.startsWith("http")) {
       window.open(row.affiliateUrl, "_blank", "noopener,noreferrer");
@@ -325,11 +288,10 @@ export function HeroSection({
                     role="tab"
                     aria-selected={isActive}
                     onClick={() => setActiveTab(cat.slug)}
-                    className={`min-h-9 cursor-pointer rounded-full px-3.5 sm:px-4 text-xs sm:text-sm transition-all duration-150 ${
-                      isActive
+                    className={`min-h-9 cursor-pointer rounded-full px-3.5 sm:px-4 text-xs sm:text-sm transition-all duration-150 ${isActive
                         ? "bg-white font-bold text-[#14102b] shadow-md scale-102"
                         : "border border-[#3b3078] font-medium text-[#e4dcff] hover:bg-white/10"
-                    }`}
+                      }`}
                   >
                     {cat.name}
                   </button>
@@ -342,9 +304,9 @@ export function HeroSection({
 
       {/* Comparison card: compact overlap for laptop view */}
       <section className="relative z-10 mx-auto -mt-8 sm:-mt-10 w-full max-w-[1100px] px-4 sm:px-6">
-        <div className="overflow-hidden rounded-2xl sm:rounded-3xl card-surface border border-gray-100 dark:border-white/5 shadow-[0_20px_45px_-20px_rgba(20,16,43,0.3)] dark:shadow-[0_20px_45px_-20px_rgba(0,0,0,0.7)] transition-colors duration-200">
+        <div className="overflow-hidden rounded-2xl sm:rounded-3xl card-surface border border-theme-border shadow-[0_20px_45px_-20px_rgba(20,16,43,0.3)] dark:shadow-[0_20px_45px_-20px_rgba(0,0,0,0.7)] transition-colors duration-200">
           {/* Card Header Row */}
-          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 dark:border-white/5">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-theme-border">
             <div>
               <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-theme-fg">
                 {comparisonTitle}
@@ -361,10 +323,19 @@ export function HeroSection({
           </div>
 
           {/* Comparison Rows Table (Max 3 Items, No separate Price column) */}
-          {rows.length === 0 ? (
+          {availableCategories.length === 0 ? (
+            <div className="py-12 px-6 text-center">
+              <p className="text-xs sm:text-sm font-semibold text-theme-muted">
+                No categories selected for Hero comparison yet.
+              </p>
+              <p className="text-[11px] text-theme-muted/70 mt-1">
+                Go to Admin Dashboard &rarr; Categories and turn on &ldquo;In Hero&rdquo; on the categories you want to compare.
+              </p>
+            </div>
+          ) : rows.length === 0 ? (
             <div className="py-10 px-6 text-center">
               <p className="text-xs sm:text-sm font-semibold text-theme-muted">
-                No items added in &ldquo;{currentCategory?.name || "this category"}&rdquo; yet.
+                No items featured for comparison in &ldquo;{currentCategory?.name || "this category"}&rdquo; yet.
               </p>
               <Link
                 href={fullComparisonHref}
@@ -377,7 +348,7 @@ export function HeroSection({
             <div className="overflow-x-auto">
               <table className="w-full min-w-[560px] border-collapse text-left">
                 <thead>
-                  <tr className="bg-theme-bg/40 text-[11px] font-bold uppercase tracking-wider text-theme-muted border-b border-gray-100 dark:border-white/5">
+                  <tr className="bg-theme-bg/40 text-[11px] font-bold uppercase tracking-wider text-theme-muted border-b border-theme-border">
                     <th scope="col" className="px-4 sm:px-6 py-2.5">
                       Our pick
                     </th>
@@ -392,18 +363,17 @@ export function HeroSection({
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+                <tbody className="divide-y divide-theme-border">
                   {rows.map((row, idx) => (
                     <tr
                       key={row.id || idx}
-                      className="transition-colors hover:bg-theme-surface-hover/60"
+                      className="transition-colors hover:bg-theme-surface-hover/60 border-b border-theme-border last:border-b-0"
                     >
                       {/* OUR PICK Badge */}
                       <td className="px-4 sm:px-6 py-3 align-middle w-[140px]">
                         <span
-                          className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                            BADGE_CLASSES[row.badgeStyle]
-                          }`}
+                          className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-bold ${BADGE_CLASSES[row.badgeStyle]
+                            }`}
                         >
                           {row.pickBadge}
                         </span>
@@ -418,7 +388,7 @@ export function HeroSection({
                               alt={row.title}
                               width={40}
                               height={40}
-                              className="h-10 w-10 shrink-0 rounded-xl border border-gray-100 dark:border-white/10 bg-theme-bg object-cover"
+                              className="h-10 w-10 shrink-0 rounded-xl border border-theme-border bg-theme-bg object-cover"
                             />
                           ) : (
                             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-theme-primary-light text-theme-primary">
@@ -467,7 +437,7 @@ export function HeroSection({
           )}
 
           {/* Card Footer Note & Link */}
-          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-gray-100 dark:border-white/5 bg-theme-bg/30 px-4 sm:px-6 py-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-t border-theme-border bg-theme-bg/30 px-4 sm:px-6 py-2.5">
             <span className="text-[11px] sm:text-xs text-theme-muted">
               Prices change often. Confirm on the store before you buy.
             </span>
